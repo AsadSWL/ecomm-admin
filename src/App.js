@@ -1,0 +1,77 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import HomePageThree from "./pages/HomePageThree";
+import CompanyPage from "./pages/CompanyPage";
+import ErrorPage from "./pages/ErrorPage";
+import OrderListPage from "./pages/OrderListPage";
+import InvoicePreviewPage from "./pages/InvoicePreviewPage";
+import SignInPage from "./pages/SignInPage";
+import ProductListPage from "./pages/ProductListPage";
+import CategoryListPage from "./pages/CategoryListPage";
+import SupplierListPage from "./pages/SupplierListPage";
+import BranchListPage from "./pages/BranchListPage";
+import TransactionListPage from "./pages/TransactionListPage";
+import AddProductPage from "./pages/AddProductPage";
+import EditProductPage from "./pages/EditProductPage";
+import AddCategoryPage from "./pages/AddCategoryPage";
+import EditCategoryPage from "./pages/EditCategoryPage";
+import AddSupplierPage from "./pages/AddSupplierPage";
+import EditSupplierPage from "./pages/EditSupplierPage";
+import AddBranchPage from "./pages/AddBranchPage";
+import EditBranchPage from "./pages/EditBranchPage";
+import ViewBranchPage from "./pages/ViewBranchPage";
+import ViewBranchOrdersPage from "./pages/ViewBranchOrdersPage";
+import ViewSupplierPage from "./pages/ViewSupplierPage";
+import ViewSupplierOrdersPage from "./pages/ViewSupplierOrdersPage";
+import ViewSupplierProductsPage from "./pages/ViewSupplierProductsPage";
+import ViewProductPage from "./pages/ViewProductPage";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+
+function App() {
+    return (
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route exact path="/" element={<SignInPage />} />
+                    <Route exact path="/dashboard" element={<ProtectedRoute element={HomePageThree} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/order-list" element={<ProtectedRoute element={OrderListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/order-view/:id" element={<ProtectedRoute element={InvoicePreviewPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/products-list" element={<ProtectedRoute element={ProductListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/products-view" element={<ProtectedRoute element={ViewProductPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/products-add" element={<ProtectedRoute element={AddProductPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/products-edit" element={<ProtectedRoute element={EditProductPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/categories-list" element={<ProtectedRoute element={CategoryListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/categories-add" element={<ProtectedRoute element={AddCategoryPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/categories-edit" element={<ProtectedRoute element={EditCategoryPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/suppliers-list" element={<ProtectedRoute element={SupplierListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-view" element={<ProtectedRoute element={ViewSupplierPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-add" element={<ProtectedRoute element={AddSupplierPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-edit" element={<ProtectedRoute element={EditSupplierPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-products" element={<ProtectedRoute element={ViewSupplierProductsPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-orders" element={<ProtectedRoute element={ViewSupplierOrdersPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/branches-list" element={<ProtectedRoute element={BranchListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/branches-view" element={<ProtectedRoute element={ViewBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/branches-add" element={<ProtectedRoute element={AddBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/branches-edit" element={<ProtectedRoute element={EditBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/branches-orders" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/transactions-list" element={<ProtectedRoute element={TransactionListPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/company" element={<ProtectedRoute element={CompanyPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="*" element={<ErrorPage />} />
+
+
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
+    );
+}
+
+export default App;

@@ -8,7 +8,7 @@ const UnitCountOne = () => {
     const token = localStorage.getItem('token');
   
     useEffect(() => {
-        axios.get('http://localhost:5000/api/dashboard-stats', {
+        axios.get('https://ecomm-backend-sooty.vercel.app/api/dashboard-stats', {
             headers: {
             Authorization: `Bearer ${token}`,
             },

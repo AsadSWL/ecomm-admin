@@ -12,7 +12,7 @@ const InvoicePreviewLayer = () => {
     const token = localStorage.getItem('token');
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/get-order/${id}`, {
+        axios.get(`https://ecomm-backend-sooty.vercel.app/api/get-order/${id}`, {
                 headers: {
                 Authorization: `Bearer ${token}`,
                 },

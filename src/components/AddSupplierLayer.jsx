@@ -6,6 +6,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -15,6 +16,17 @@ const AddSupplierLayer = () => {
     const navigate = useNavigate();
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [selectedDates, setSelectedDates] = useState([]);
+    const [supplierName, setSupplierName] = useState('');
+    const [supplierEmail, setSupplierEmail] = useState('');
+    const [streetAddress, setStreetAddress] = useState('');
+    const [city, setCity] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [status, setStatus] = useState('');
+    const token = localStorage.getItem('token');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const handleAreaChange = (event, value) => {
         setSelectedAreas(value);
@@ -53,6 +65,48 @@ const AddSupplierLayer = () => {
             }
         };
     }, [imagePreview]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        if (fileInputRef.current.files.length > 0) {
+            formData.append('image', fileInputRef.current.files[0]);
+        }
+        formData.append('name', supplierName);
+        formData.append('email', supplierEmail);
+        formData.append('streetAddress', streetAddress);
+        formData.append('city', city);
+        formData.append('postcode', postalCode);
+        formData.append('deliveryDays', selectedAreas);
+        formData.append('holidays', selectedDates);
+        formData.append('status', status);
+
+        axios
+        .post(`${baseURL}/api/create-supplier`, formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        .then((response) => {
+            setLoading(false);
+            navigate('/suppliers-list');
+        })
+        .catch((error) => {
+            setLoading(false);
+            setError(error.response?.data?.message || 'Error adding category');
+        });
+    };
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">
             <div className="card-body p-40">
@@ -104,7 +158,7 @@ const AddSupplierLayer = () => {
                     />
                 </div>
                 {/* Upload Image End */}
-                <form action="#" className='row'>
+                <form onSubmit={handleSubmit} className='row'>
                     <div className="mb-20 col-6">
                         <label
                             htmlFor="name"
@@ -116,7 +170,27 @@ const AddSupplierLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="name"
+                            value={supplierName}
+                            onChange={(e) => setSupplierName(e.target.value)}
                             placeholder="Enter Supplier Name"
+                            required
+                        />
+                    </div>
+                    <div className="mb-20 col-6">
+                        <label
+                            htmlFor="email"
+                            className="form-label fw-semibold text-primary-light text-sm mb-8"
+                        >
+                            Supplier Email <span className="text-danger-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control radius-8"
+                            id="email"
+                            value={supplierEmail}
+                            onChange={(e) => setSupplierEmail(e.target.value)}
+                            placeholder="Enter Supplier Email"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -130,7 +204,10 @@ const AddSupplierLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="streetAddress"
+                            value={streetAddress}
+                            onChange={(e) => setStreetAddress(e.target.value)}
                             placeholder="Enter Street Address"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -144,7 +221,10 @@ const AddSupplierLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="city"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
                             placeholder="Enter City"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -158,7 +238,10 @@ const AddSupplierLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="postalCode"
+                            value={postalCode}
+                            onChange={(e) => setPostalCode(e.target.value)}
                             placeholder="Enter Postcode"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -172,8 +255,11 @@ const AddSupplierLayer = () => {
                         <select
                             className="form-control radius-8 form-select"
                             id="status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            required
                         >
-                            <option disabled>
+                            <option disabled value="">
                                 Select Status
                             </option>
                             <option value="Active">Active</option>

@@ -31,7 +31,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
     return (
         <AuthProvider>
-            <BrowserRouter>
+            <BrowserRouter basename="/">
                 <Routes>
                     <Route exact path="/" element={<SignInPage />} />
                     <Route exact path="/dashboard" element={<ProtectedRoute element={HomePageThree} allowedRoles={['admin']} />} />
@@ -42,24 +42,24 @@ function App() {
                     <Route exact path="/products-list" element={<ProtectedRoute element={ProductListPage} allowedRoles={['admin']} />} />
                     <Route exact path="/products-view" element={<ProtectedRoute element={ViewProductPage} allowedRoles={['admin']} />} />
                     <Route exact path="/products-add" element={<ProtectedRoute element={AddProductPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/products-edit" element={<ProtectedRoute element={EditProductPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/products-edit/:productId" element={<ProtectedRoute element={EditProductPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/categories-list" element={<ProtectedRoute element={CategoryListPage} allowedRoles={['admin']} />} />
                     <Route exact path="/categories-add" element={<ProtectedRoute element={AddCategoryPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/categories-edit" element={<ProtectedRoute element={EditCategoryPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/categories-edit/:categoryId" element={<ProtectedRoute element={EditCategoryPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/suppliers-list" element={<ProtectedRoute element={SupplierListPage} allowedRoles={['admin']} />} />
                     <Route exact path="/suppliers-view" element={<ProtectedRoute element={ViewSupplierPage} allowedRoles={['admin']} />} />
                     <Route exact path="/suppliers-add" element={<ProtectedRoute element={AddSupplierPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/suppliers-edit" element={<ProtectedRoute element={EditSupplierPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/suppliers-products" element={<ProtectedRoute element={ViewSupplierProductsPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/suppliers-edit/:supplierId" element={<ProtectedRoute element={EditSupplierPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/supplier-products/:supplierId" element={<ProtectedRoute element={ViewSupplierProductsPage} allowedRoles={['admin']} />} />
                     <Route exact path="/suppliers-orders" element={<ProtectedRoute element={ViewSupplierOrdersPage} allowedRoles={['admin']} />} />
 
-                    <Route exact path="/branches-list" element={<ProtectedRoute element={BranchListPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/branches-view" element={<ProtectedRoute element={ViewBranchPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/branches-add" element={<ProtectedRoute element={AddBranchPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/branches-edit" element={<ProtectedRoute element={EditBranchPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/branches-orders" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shops-list" element={<ProtectedRoute element={BranchListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shop-view" element={<ProtectedRoute element={ViewBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shop-add" element={<ProtectedRoute element={AddBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shop-edit/:id" element={<ProtectedRoute element={EditBranchPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shops-orders" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/transactions-list" element={<ProtectedRoute element={TransactionListPage} allowedRoles={['admin']} />} />
 

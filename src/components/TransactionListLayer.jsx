@@ -1,20 +1,37 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const TransactionListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem('token');
 
-    const invoices = [
-        { id: '#526534', tnx_id: "537856453", branch: 'Branch 1', date: '25 Oct 2024', amount: '$200.00' },
-        { id: '#696589', tnx_id: "646439035", branch: 'Branch 2', date: '25 Oct 2024', amount: '$200.00' },
-        { id: '#256584', tnx_id: "604593056", branch: 'Branch 3', date: '10 Nov 2024', amount: '$200.00' },
-        { id: '#526587', tnx_id: "409820954", branch: 'Branch 4', date: '10 Nov 2024', amount: '$150.00' },
-        { id: '#105986', tnx_id: "493095820", branch: 'Branch 5', date: '11 Nov 2024', amount: '$150.00' },
-    ];
+    const baseURL = process.env.REACT_APP_BASE_URL;
+
+    useEffect(() => {
+        const url = `${baseURL}/api/get-transactions`;
+        axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((response) => {
+                setTransactions(response.data.transactions);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching transactions:', error);
+                setLoading(false);
+            });
+    }, [token, baseURL]);
 
     const handleEntriesPerPageChange = (e) => {
         setEntriesPerPage(Number(e.target.value));
@@ -23,7 +40,7 @@ const TransactionListLayer = () => {
 
     const handleStatusFilterChange = (e) => {
         setStatusFilter(e.target.value);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (e) => {
@@ -31,20 +48,20 @@ const TransactionListLayer = () => {
         setCurrentPage(1);
     };
 
-    const filteredInvoices = invoices.filter(invoice => {
-        const matchesStatus = statusFilter === 'All' || invoice.status === statusFilter;
+    const filteredTransactions = transactions.filter(transaction => {
+        const matchesStatus = statusFilter === 'All' || transaction.status === statusFilter;
         const matchesSearchTerm =
-            invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            invoice.tnx_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            invoice.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            invoice.amount.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            invoice.date.toLowerCase().includes(searchTerm.toLowerCase());
+            transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            transaction.tnx_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            transaction.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            transaction.amount.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            transaction.date.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesStatus && matchesSearchTerm;
     });
 
-    const totalPages = Math.ceil(filteredInvoices.length / entriesPerPage);
+    const totalPages = Math.ceil(filteredTransactions.length / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentInvoices = filteredInvoices.slice(startIndex, startIndex + entriesPerPage);
+    const currentTransactions = filteredTransactions.slice(startIndex, startIndex + entriesPerPage);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
@@ -52,13 +69,32 @@ const TransactionListLayer = () => {
         }
     };
 
+    const renderSkeletonRows = () => (
+        Array.from({ length: entriesPerPage }).map((_, index) => (
+            <tr key={index}>
+                <td><Skeleton width={20} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={80} /></td>
+                <td><Skeleton width={120} /></td>
+                <td><Skeleton width={120} /></td>
+            </tr>
+        ))
+    );
+
     return (
         <div className="card">
             <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div className="d-flex flex-wrap align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
                         <span>Show</span>
-                        <select className="form-select form-select-sm w-auto" defaultValue="10" onChange={handleEntriesPerPageChange}>
+                        <select
+                            className="form-select form-select-sm w-auto"
+                            defaultValue="10"
+                            onChange={handleEntriesPerPageChange}
+                            disabled={loading}
+                        >
                             <option value="10">10</option>
                             <option value="15">15</option>
                             <option value="20">20</option>
@@ -72,6 +108,7 @@ const TransactionListLayer = () => {
                             placeholder="Search"
                             value={searchTerm}
                             onChange={handleSearchChange}
+                            disabled={loading}
                         />
                         <span className="icon">
                             <Icon icon="ion:search-outline" />
@@ -84,62 +121,52 @@ const TransactionListLayer = () => {
                         <option value="Paid">Paid</option>
                         <option value="Pending">Pending</option>
                     </select>
+                    <Link to="/transaction-add" className="btn btn-sm btn-primary-600">
+                        <i className="ri-add-line" /> Add Transaction
+                    </Link>
                 </div>
             </div>
             <div className="card-body">
                 <table className="table bordered-table mb-0">
                     <thead>
                         <tr>
-                            <th scope="col">
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <label className="form-check-label" htmlFor="checkAll">
-                                        S.L
-                                    </label>
-                                </div>
-                            </th>
-                            <th scope="col">Invoice</th>
+                            <th scope="col">S.L</th>
                             <th scope="col">Transaction ID</th>
                             <th scope="col">Branch</th>
-                            <th scope="col">Order Date</th>
+                            <th scope="col">Date</th>
                             <th scope="col">Amount</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentInvoices.map((invoice, index) => (
+                        {loading ? renderSkeletonRows() : currentTransactions.map((transaction, index) => (
                             <tr key={index}>
+                                <td>{startIndex + index + 1}</td>
+                                <td>{transaction.tnx_id}</td>
+                                <td>{transaction.branch}</td>
+                                <td>{transaction.date}</td>
+                                <td>{transaction.amount}</td>
                                 <td>
-                                    <div className="form-check style-check d-flex align-items-center">
-                                        <label className="form-check-label" htmlFor={`check${index + 1}`}>
-                                            {startIndex + index + 1}
-                                        </label>
-                                    </div>
+                                    <span className={`bg-${transaction.status === 'Paid' ? 'success' : 'warning'}-focus text-${transaction.status === 'Paid' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
+                                        {transaction.status}
+                                    </span>
                                 </td>
                                 <td>
-                                    {invoice.id}
+                                    <Link to={`/transaction-edit/${transaction.id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <Icon icon="lucide:edit" />
+                                    </Link>
+                                    <Link to="#" className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <Icon icon="mingcute:delete-2-line" />
+                                    </Link>
                                 </td>
-                                <td>
-                                    <div className="d-flex align-items-center">
-                                        <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {invoice.tnx_id}
-                                        </h6>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="d-flex align-items-center">
-                                        <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {invoice.branch}
-                                        </h6>
-                                    </div>
-                                </td>
-                                <td>{invoice.date}</td>
-                                <td>{invoice.amount}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                     <span>
-                        Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, filteredInvoices.length)} of {filteredInvoices.length} entries
+                        Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, filteredTransactions.length)} of {filteredTransactions.length} entries
                     </span>
                     <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li className="page-item">

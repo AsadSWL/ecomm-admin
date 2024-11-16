@@ -11,7 +11,7 @@ const EditBranchPage = () => {
       <MasterLayout>
 
         {/* Breadcrumb */}
-        <Breadcrumb title="Edit Branch" />
+        <Breadcrumb title="Edit Shop" />
 
         {/* EditBranchLayer */}
         <EditBranchLayer />

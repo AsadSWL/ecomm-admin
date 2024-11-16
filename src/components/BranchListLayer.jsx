@@ -1,20 +1,37 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
-const BranchListLayer = () => {
+const ShopListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [shops, setShops] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem('token');
 
-    const branches = [
-        { name: 'Branch 1', email: 'branch1@email.com', address: 'St 1, abc, xyz', payment_method: 'COD', orders: '120', status: 'Active' },
-        { name: 'Branch 2', email: 'branch2@email.com', address: 'St 2, abc, xyz', payment_method: 'Card', orders: '100', status: 'Inactive' },
-        { name: 'Branch 3', email: 'branch3@email.com', address: 'St 3, abc, xyz', payment_method: 'Card', orders: '80', status: 'Active' },
-        { name: 'Branch 4', email: 'branch4@email.com', address: 'St 4, abc, xyz', payment_method: 'COD', orders: '160', status: 'Active' },
-        { name: 'Branch 5', email: 'branch5@email.com', address: 'St 5, abc, xyz', payment_method: 'Card', orders: '200', status: 'Inactive' },
-    ];
+    const baseURL = process.env.REACT_APP_BASE_URL;
+
+    useEffect(() => {
+        const url = `${baseURL}/api/get-branches`;
+        axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((response) => {
+                setShops(response.data.branches || []);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching shops:', error);
+                setLoading(false);
+            });
+    }, [token, baseURL]);
 
     const handleEntriesPerPageChange = (e) => {
         setEntriesPerPage(Number(e.target.value));
@@ -23,7 +40,7 @@ const BranchListLayer = () => {
 
     const handleStatusFilterChange = (e) => {
         setStatusFilter(e.target.value);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (e) => {
@@ -31,20 +48,14 @@ const BranchListLayer = () => {
         setCurrentPage(1);
     };
 
-    const filteredSuppliers = branches.filter(branch => {
-        const matchesStatus = statusFilter === 'All' || branch.status === statusFilter;
-        const matchesSearchTerm =
-            branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            branch.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            branch.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            branch.products.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            branch.orders.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearchTerm;
+    const filteredShops = shops.filter(shop => {
+        const matchesStatus = statusFilter === 'All' || shop.status === statusFilter;
+        return matchesStatus;
     });
 
-    const totalPages = Math.ceil(filteredSuppliers.length / entriesPerPage);
+    const totalPages = Math.ceil(filteredShops.length / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentSuppliers = filteredSuppliers.slice(startIndex, startIndex + entriesPerPage);
+    const currentShops = filteredShops.slice(startIndex, startIndex + entriesPerPage);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
@@ -52,13 +63,32 @@ const BranchListLayer = () => {
         }
     };
 
+    const renderSkeletonRows = () => (
+        Array.from({ length: entriesPerPage }).map((_, index) => (
+            <tr key={index}>
+                <td><Skeleton width={20} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={80} /></td>
+                <td><Skeleton width={120} /></td>
+                <td><Skeleton circle width={32} height={32} /><Skeleton circle width={32} height={32} /></td>
+            </tr>
+        ))
+    );
+
     return (
         <div className="card">
             <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div className="d-flex flex-wrap align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
                         <span>Show</span>
-                        <select className="form-select form-select-sm w-auto" defaultValue="10" onChange={handleEntriesPerPageChange}>
+                        <select
+                            className="form-select form-select-sm w-auto"
+                            defaultValue="10"
+                            onChange={handleEntriesPerPageChange}
+                            disabled={loading}
+                        >
                             <option value="10">10</option>
                             <option value="15">15</option>
                             <option value="20">20</option>
@@ -72,6 +102,7 @@ const BranchListLayer = () => {
                             placeholder="Search"
                             value={searchTerm}
                             onChange={handleSearchChange}
+                            disabled={loading}
                         />
                         <span className="icon">
                             <Icon icon="ion:search-outline" />
@@ -84,8 +115,8 @@ const BranchListLayer = () => {
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
                     </select>
-                    <Link to="/branches-add" className="btn btn-sm btn-primary-600">
-                        <i className="ri-add-line" /> Add Branch
+                    <Link to="/shop-add" className="btn btn-sm btn-primary-600">
+                        <i className="ri-add-line" /> Add Shop
                     </Link>
                 </div>
             </div>
@@ -104,13 +135,12 @@ const BranchListLayer = () => {
                             <th scope="col">Email</th>
                             <th scope="col">Address</th>
                             <th scope="col">Payment Method</th>
-                            <th scope="col">Orders</th>
                             <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentSuppliers.map((branch, index) => (
+                        {loading ? renderSkeletonRows() : currentShops.map((shop, index) => (
                             <tr key={index}>
                                 <td>
                                     <div className="form-check style-check d-flex align-items-center">
@@ -122,38 +152,37 @@ const BranchListLayer = () => {
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {branch.name}
+                                            {shop.firstname}
                                         </h6>
                                     </div>
                                 </td>
                                 <td>
-                                    {branch.email}
+                                    {shop.email}
                                 </td>
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {branch.address}
+                                            {shop.address.street + ', ' + shop.address.city}
                                         </h6>
                                     </div>
                                 </td>
-                                <td>{branch.payment_method}</td>
-                                <td>{branch.orders}</td>
+                                <td>{shop.paymentMethod}</td>
                                 <td>
                                     <span
-                                        className={`bg-${branch.status === 'Active' ? 'success' : 'warning'}-focus text-${branch.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
+                                        className={`bg-${shop.status === 'Active' ? 'success' : 'warning'}-focus text-${shop.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
                                     >
-                                        {branch.status}
+                                        {shop.status}
                                     </span>
                                 </td>
                                 <td>
                                     {/* <Link
-                                        to="/branches-view"
-                                        className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
-                                        <Icon icon="iconamoon:eye-light" />
-                                    </Link> */}
+                                            to="/shops-view"
+                                            className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        >
+                                            <Icon icon="iconamoon:eye-light" />
+                                        </Link> */}
                                     <Link
-                                        to="/branches-edit"
+                                        to={`/shop-edit/${shop._id}`}
                                         className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                     >
                                         <Icon icon="lucide:edit" />
@@ -171,7 +200,7 @@ const BranchListLayer = () => {
                 </table>
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                     <span>
-                        Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, filteredSuppliers.length)} of {filteredSuppliers.length} entries
+                        Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, filteredShops.length)} of {filteredShops.length} entries
                     </span>
                     <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li className="page-item">
@@ -210,4 +239,4 @@ const BranchListLayer = () => {
     );
 };
 
-export default BranchListLayer;
+export default ShopListLayer;

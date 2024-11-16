@@ -1,20 +1,37 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const SupplierListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [suppliers, setSuppliers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
-    const suppliers = [
-        { name: 'Supplier 1', email: 'supplier1@email.com', address: 'St 1, abc, xyz', products: '200', orders: '120', status: 'Active' },
-        { name: 'Supplier 2', email: 'supplier2@email.com', address: 'St 2, abc, xyz', products: '180', orders: '100', status: 'Inactive' },
-        { name: 'Supplier 3', email: 'supplier3@email.com', address: 'St 3, abc, xyz', products: '240', orders: '80', status: 'Active' },
-        { name: 'Supplier 4', email: 'supplier4@email.com', address: 'St 4, abc, xyz', products: '300', orders: '160', status: 'Active' },
-        { name: 'Supplier 5', email: 'supplier5@email.com', address: 'St 5, abc, xyz', products: '270', orders: '200', status: 'Inactive' },
-    ];
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/get-suppliers', {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                }});
+                setSuppliers(response.data.suppliers || []);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching suppliers:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchSuppliers();
+    }, []);
 
     const handleEntriesPerPageChange = (e) => {
         setEntriesPerPage(Number(e.target.value));
@@ -23,7 +40,7 @@ const SupplierListLayer = () => {
 
     const handleStatusFilterChange = (e) => {
         setStatusFilter(e.target.value);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (e) => {
@@ -33,13 +50,7 @@ const SupplierListLayer = () => {
 
     const filteredSuppliers = suppliers.filter(supplier => {
         const matchesStatus = statusFilter === 'All' || supplier.status === statusFilter;
-        const matchesSearchTerm =
-            supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            supplier.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            supplier.products.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            supplier.orders.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearchTerm;
+        return matchesStatus;
     });
 
     const totalPages = Math.ceil(filteredSuppliers.length / entriesPerPage);
@@ -103,70 +114,83 @@ const SupplierListLayer = () => {
                             <th scope="col">Name</th>
                             <th scope="col">Email</th>
                             <th scope="col">Address</th>
-                            <th scope="col">Products</th>
-                            <th scope="col">Orders</th>
                             <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentSuppliers.map((supplier, index) => (
-                            <tr key={index}>
-                                <td>
-                                    <div className="form-check style-check d-flex align-items-center">
-                                        <label className="form-check-label" htmlFor={`check${index + 1}`}>
-                                            {startIndex + index + 1}
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="d-flex align-items-center">
-                                        <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {supplier.name}
-                                        </h6>
-                                    </div>
-                                </td>
-                                <td>
-                                    {supplier.email}
-                                </td>
-                                <td>
-                                    <div className="d-flex align-items-center">
-                                        <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {supplier.address}
-                                        </h6>
-                                    </div>
-                                </td>
-                                <td>{supplier.products}</td>
-                                <td>{supplier.orders}</td>
-                                <td>
-                                    <span
-                                        className={`bg-${supplier.status === 'Active' ? 'success' : 'warning'}-focus text-${supplier.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
-                                    >
-                                        {supplier.status}
-                                    </span>
-                                </td>
-                                <td>
-                                    {/* <Link
-                                        to="/suppliers-view"
-                                        className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
-                                        <Icon icon="iconamoon:eye-light" />
-                                    </Link> */}
-                                    <Link
-                                        to="/suppliers-edit"
-                                        className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
-                                        <Icon icon="lucide:edit" />
-                                    </Link>
-                                    <Link
-                                        to="#"
-                                        className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
-                                        <Icon icon="mingcute:delete-2-line" />
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                        {loading ? (
+                            Array(entriesPerPage).fill().map((_, index) => (
+                                <tr key={index}>
+                                    <td><Skeleton width={30} /></td>
+                                    <td><Skeleton height={30} width={30} circle /><Skeleton width={80} /></td>
+                                    <td><Skeleton width={100} /></td>
+                                    <td><Skeleton width={100} /></td>
+                                    <td><Skeleton width={80} /></td>
+                                    <td><Skeleton width={80} /><Skeleton height={30} width={30} circle /><Skeleton height={30} width={30} circle /></td>
+                                </tr>
+                            ))
+                        ) : (
+                            currentSuppliers.map((supplier, index) => (
+                                <tr key={index}>
+                                    <td>
+                                        <div className="form-check style-check d-flex align-items-center">
+                                            <label className="form-check-label" htmlFor={`check${index + 1}`}>
+                                                {startIndex + index + 1}
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="d-flex align-items-center">
+                                            <img
+                                                src={baseURL + supplier.icon}
+                                                alt={supplier.name}
+                                                className="flex-shrink-0 me-12 radius-8"
+                                                width={50}
+                                            />
+                                            <h6 className="text-md mb-0 fw-medium flex-grow-1">
+                                                {supplier?.name}
+                                            </h6>
+                                        </div>
+                                    </td>
+                                    <td>{supplier.email}</td>
+                                    <td>
+                                        <div className="d-flex align-items-center">
+                                            <h6 className="text-md mb-0 fw-medium flex-grow-1">
+                                                {supplier?.address.street + ", " + supplier?.address.city}
+                                            </h6>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            className={`bg-${supplier.status === 'Active' ? 'success' : 'warning'}-focus text-${supplier.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
+                                        >
+                                            {supplier.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <Link
+                                            to={`/supplier-products/${supplier._id}`}
+                                            className=" me-8 bg-info-focus text-primary px-24 py-4 rounded-pill fw-medium text-sm"
+                                        >
+                                            View Products
+                                        </Link>
+                                        <Link
+                                            to={`/suppliers-edit/${supplier._id}`}
+                                            className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        >
+                                            <Icon icon="lucide:edit" />
+                                        </Link>
+                                        <Link
+                                            to="#"
+                                            className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        >
+                                            <Icon icon="mingcute:delete-2-line" />
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
@@ -180,17 +204,17 @@ const SupplierListLayer = () => {
                                 to="#"
                                 onClick={() => handlePageChange(currentPage - 1)}
                             >
-                                <Icon icon="ep:d-arrow-left" className="text-xl" />
+                                <Icon icon="ep:d-arrow-left" />
                             </Link>
                         </li>
-                        {[...Array(totalPages)].map((_, index) => (
-                            <li key={index} className="page-item">
+                        {[...Array(totalPages).keys()].map((pageNum) => (
+                            <li key={pageNum} className="page-item">
                                 <Link
-                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px`}
+                                    className={`page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px ${currentPage === pageNum + 1 ? 'bg-primary-600 text-white' : 'bg-base'}`}
                                     to="#"
-                                    onClick={() => handlePageChange(index + 1)}
+                                    onClick={() => handlePageChange(pageNum + 1)}
                                 >
-                                    {index + 1}
+                                    {pageNum + 1}
                                 </Link>
                             </li>
                         ))}
@@ -200,7 +224,7 @@ const SupplierListLayer = () => {
                                 to="#"
                                 onClick={() => handlePageChange(currentPage + 1)}
                             >
-                                <Icon icon="ep:d-arrow-right" className="text-xl" />
+                                <Icon icon="ep:d-arrow-right" />
                             </Link>
                         </li>
                     </ul>

@@ -1,20 +1,36 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const ProductListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
-    const products = [
-        { name: 'Product 1', category: 'Category 1', supplier: 'Supplier 1', price: '$200.00', status: 'Active' },
-        { name: 'Product 2', category: 'Category 2', supplier: 'Supplier 2', price: '$200.00', status: 'Active' },
-        { name: 'Product 3', category: 'Category 3', supplier: 'Supplier 3', price: '$200.00', status: 'Active' },
-        { name: 'Product 4', category: 'Category 4', supplier: 'Supplier 4', price: '$200.00', status: 'Active' },
-        { name: 'Product 5', category: 'Category 5', supplier: 'Supplier 5', price: '$200.00', status: 'Inactive' },
-    ];
+    useEffect(() => {
+        const url = `${baseURL}/api/get-all-products`;
+        axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((response) => {
+                setProducts(response.data.products);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching products:', error);
+                setLoading(false);
+            });
+    }, [token, baseURL]);
 
     const handleEntriesPerPageChange = (e) => {
         setEntriesPerPage(Number(e.target.value));
@@ -23,7 +39,7 @@ const ProductListLayer = () => {
 
     const handleStatusFilterChange = (e) => {
         setStatusFilter(e.target.value);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (e) => {
@@ -34,10 +50,7 @@ const ProductListLayer = () => {
     const filteredProducts = products.filter(product => {
         const matchesStatus = statusFilter === 'All' || product.status === statusFilter;
         const matchesSearchTerm =
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.price.toLowerCase().includes(searchTerm.toLowerCase());
+            product.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesStatus && matchesSearchTerm;
     });
 
@@ -50,6 +63,21 @@ const ProductListLayer = () => {
             setCurrentPage(page);
         }
     };
+
+    const renderSkeletonRows = () => (
+        Array.from({ length: entriesPerPage }).map((_, index) => (
+            <tr key={index}>
+                <td><Skeleton width={20} /></td>
+                <td><Skeleton circle width={32} height={32} /><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={100} /></td>
+                <td><Skeleton width={80} /></td>
+                <td><Skeleton width={80} /></td>
+                <td><Skeleton width={120} /></td>
+                <td><Skeleton circle width={32} height={32} /><Skeleton circle width={32} height={32} /></td>
+            </tr>
+        ))
+    );
 
     return (
         <div className="card">
@@ -103,12 +131,13 @@ const ProductListLayer = () => {
                             <th scope="col">Category</th>
                             <th scope="col">Supplier</th>
                             <th scope="col">Price</th>
+                            <th scope="col">VAT</th>
                             <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentProducts.map((product, index) => (
+                        {loading ? renderSkeletonRows() : currentProducts.map((product, index) => (
                             <tr key={index}>
                                 <td>
                                     <div className="form-check style-check d-flex align-items-center">
@@ -118,47 +147,32 @@ const ProductListLayer = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    {product.name}
-                                </td>
-                                <td>
                                     <div className="d-flex align-items-center">
+                                        <img
+                                            src={baseURL + product.image}
+                                            alt={product.name}
+                                            className="flex-shrink-0 me-12 radius-8"
+                                            width={50}
+                                        />
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {product.category}
+                                            {product?.name}
                                         </h6>
                                     </div>
                                 </td>
-                                <td>
-                                    <div className="d-flex align-items-center">
-                                        <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {product.supplier}
-                                        </h6>
-                                    </div>
-                                </td>
+                                <td>{product.category.name}</td>
+                                <td>{product.supplier.name}</td>
                                 <td>{product.price}</td>
+                                <td>{product.vat}</td>
                                 <td>
-                                    <span
-                                        className={`bg-${product.status === 'Active' ? 'success' : 'warning'}-focus text-${product.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
-                                    >
+                                    <span className={`bg-${product.status === 'Active' ? 'success' : 'warning'}-focus text-${product.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
                                         {product.status}
                                     </span>
                                 </td>
                                 <td>
-                                    {/* <Link
-                                        to="/products-view"
-                                        className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
-                                        <Icon icon="iconamoon:eye-light" />
-                                    </Link> */}
-                                    <Link
-                                        to="/products-edit"
-                                        className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
+                                    <Link to={`/products-edit/${product._id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <Icon icon="lucide:edit" />
                                     </Link>
-                                    <Link
-                                        to="#"
-                                        className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                    >
+                                    <Link to="#" className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <Icon icon="mingcute:delete-2-line" />
                                     </Link>
                                 </td>
@@ -173,7 +187,7 @@ const ProductListLayer = () => {
                     <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage - 1)}
                             >
@@ -183,7 +197,7 @@ const ProductListLayer = () => {
                         {[...Array(totalPages)].map((_, index) => (
                             <li key={index} className="page-item">
                                 <Link
-                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px`}
+                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px`}
                                     to="#"
                                     onClick={() => handlePageChange(index + 1)}
                                 >
@@ -193,7 +207,7 @@ const ProductListLayer = () => {
                         ))}
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage + 1)}
                             >

@@ -37,7 +37,7 @@ const TopSellingProductOne = () => {
                                     <td>
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="assets/images/product/product-img1.png"
+                                                src="/assets/images/product/product-img1.png"
                                                 alt=""
                                                 className="flex-shrink-0 me-12 radius-8 me-12"
                                             />
@@ -61,7 +61,7 @@ const TopSellingProductOne = () => {
                                     <td>
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="assets/images/product/product-img2.png"
+                                                src="/assets/images/product/product-img2.png"
                                                 alt=""
                                                 className="flex-shrink-0 me-12 radius-8 me-12"
                                             />
@@ -85,7 +85,7 @@ const TopSellingProductOne = () => {
                                     <td>
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="assets/images/product/product-img3.png"
+                                                src="/assets/images/product/product-img3.png"
                                                 alt=""
                                                 className="flex-shrink-0 me-12 radius-8 me-12"
                                             />
@@ -109,7 +109,7 @@ const TopSellingProductOne = () => {
                                     <td>
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="assets/images/product/product-img4.png"
+                                                src="/assets/images/product/product-img4.png"
                                                 alt=""
                                                 className="flex-shrink-0 me-12 radius-8 me-12"
                                             />
@@ -133,7 +133,7 @@ const TopSellingProductOne = () => {
                                     <td>
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="assets/images/product/product-img5.png"
+                                                src="/assets/images/product/product-img5.png"
                                                 alt=""
                                                 className="flex-shrink-0 me-12 radius-8 me-12"
                                             />

@@ -14,7 +14,7 @@ const BranchListPage = () => {
       <MasterLayout>
 
         {/* Breadcrumb */}
-        <Breadcrumb title="Branches List" />
+        <Breadcrumb title="Shops List" />
 
         {/* BranchListLayer */}
         <BranchListLayer />

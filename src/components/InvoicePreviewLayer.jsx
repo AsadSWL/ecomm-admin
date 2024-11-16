@@ -1,6 +1,4 @@
-import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -11,8 +9,10 @@ const InvoicePreviewLayer = () => {
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');
 
+    const baseURL = process.env.REACT_APP_BASE_URL;
+
     useEffect(() => {
-        axios.get(`https://ecomm-backend-sooty.vercel.app/api/get-order/${id}`, {
+        axios.get(`${baseURL}/api/get-order/${id}`, {
                 headers: {
                 Authorization: `Bearer ${token}`,
                 },
@@ -24,8 +24,9 @@ const InvoicePreviewLayer = () => {
             .catch(error => {
                 console.error('Error fetching orders:', error);
                 setLoading(false);
+                setError('Error fetching order');
             });
-    }, []);
+    }, [token, id, baseURL]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
@@ -39,7 +40,7 @@ const InvoicePreviewLayer = () => {
                             <div className="py-28 px-20">
                                 <div className="d-flex flex-wrap justify-content-between align-items-end gap-3">
                                     <div>
-                                        <img src="../assets/images/logo.png" alt="image_icon" className="mb-8" width={150} />
+                                        <img src="..//assets/images/logo.png" alt="image_icon" className="mb-8" width={150} />
                                     </div>
                                     <div>
                                         <table className="text-sm text-secondary-light">
@@ -88,7 +89,6 @@ const InvoicePreviewLayer = () => {
                                             <tbody>
                                                 {order.products.map((item, index) => {
                                                     const productPriceWithVAT = item.product.price * 1.20;
-                                                    const productVAT = item.product.price * 0.20;
 
                                                     return (
                                                     <tr key={index}>

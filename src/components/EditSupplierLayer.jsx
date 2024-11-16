@@ -1,27 +1,49 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Autocomplete, TextField, Chip } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const EditSupplierLayer = () => {
+    const [supplierData, setSupplierData] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
-    const [selectedAreas, setSelectedAreas] = useState([]);
+    const { supplierId } = useParams();
+    const [selectedDays, setSelectedDays] = useState([]);
     const [selectedDates, setSelectedDates] = useState([]);
+    const token = localStorage.getItem('token');
+
+    const fetchSupplier = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/get-supplier/${supplierId}`,{
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = response.data.supplier[0];
+            setSupplierData(data);
+            setImagePreview("http://localhost:5000" + data.icon);
+            setSelectedDays(data.deliveryDays || []);
+            setSelectedDates(data?.holidays?.holidays?.map(dayjs) || []);
+        } catch (error) {
+            console.error("Error fetching supplier data:", error);
+        }
+    };
 
     const handleAreaChange = (event, value) => {
-        setSelectedAreas(value);
+        setSelectedDays(value);
     };
 
     const handleDateChange = (newDate) => {
-        setSelectedDates([...selectedDates, newDate]);
+        setSelectedDates([...selectedDates, new Date(newDate).toLocaleDateString('en-GB')]);
     };
 
     const removeDate = (dateToRemove) => {
@@ -46,20 +68,58 @@ const EditSupplierLayer = () => {
         }
     };
 
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("name", supplierData.name);
+        formData.append("streetAddress", supplierData.address.street);
+        formData.append("city", supplierData.address.city);
+        formData.append("postalCode", supplierData.address.postcode);
+        formData.append("status", supplierData.status);
+        formData.append("deliveryDays", JSON.stringify(selectedDays));
+        formData.append("holidays", JSON.stringify(selectedDates.map(date => new Date(date).toISOString())));
+
+        if (fileInputRef.current?.files[0]) {
+            formData.append("logo", fileInputRef.current.files[0]);
+        }
+
+        try {
+            await axios.post("http://localhost:5000/api/update-supplier", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+            alert("Supplier updated successfully");
+            navigate(-1);
+        } catch (error) {
+            console.error("Error updating supplier:", error);
+        }
+    };
+
     useEffect(() => {
+        fetchSupplier();
         return () => {
             if (imagePreview) {
                 URL.revokeObjectURL(imagePreview);
             }
         };
     }, [imagePreview]);
+
+    useEffect(() => {
+        if (supplierData) {
+            setSelectedDays(supplierData?.deliveryDays || []);
+            console.log(supplierData);
+            setSelectedDates(supplierData?.holidays?.holidays?.map(dayjs) || []);
+        }
+    }, [supplierData]);
+
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">
             <div className="card-body p-40">
                 <h6 className="text-md text-primary-light mb-16">Supplier Logo</h6>
-                {/* Upload Image Start */}
                 <div className="upload-image-wrapper d-flex align-items-center gap-3">
-                    {/* Image preview section */}
                     {imagePreview ? (
                         <div className="uploaded-img position-relative h-120-px w-120-px border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50">
                             <button
@@ -92,24 +152,18 @@ const EditSupplierLayer = () => {
                             <span className="fw-semibold text-secondary-light">Upload</span>
                         </label>
                     )}
-
-                    {/* Always render the input, but hide it */}
                     <input
                         id="upload-file"
                         type="file"
                         onChange={handleFileChange}
                         hidden
                         ref={fileInputRef}
-                        accept="image/*" // Optional: restrict to image files
+                        accept="image/*"
                     />
                 </div>
-                {/* Upload Image End */}
-                <form action="#" className='row'>
+                <form onSubmit={handleSave} className="row">
                     <div className="mb-20 col-6">
-                        <label
-                            htmlFor="name"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
+                        <label htmlFor="name" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Supplier Name <span className="text-danger-600">*</span>
                         </label>
                         <input
@@ -117,13 +171,12 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="name"
                             placeholder="Enter Supplier Name"
+                            value={supplierData.name || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, name: e.target.value })}
                         />
                     </div>
                     <div className="mb-20 col-6">
-                        <label
-                            htmlFor="streetAddress"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
+                        <label htmlFor="streetAddress" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Street Address <span className="text-danger-600">*</span>
                         </label>
                         <input
@@ -131,13 +184,12 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="streetAddress"
                             placeholder="Enter Street Address"
+                            value={supplierData.address?.street || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, street: e.target.value } })}
                         />
                     </div>
                     <div className="mb-20 col-6">
-                        <label
-                            htmlFor="city"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
+                        <label htmlFor="city" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             City <span className="text-danger-600">*</span>
                         </label>
                         <input
@@ -145,63 +197,48 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="city"
                             placeholder="Enter City"
+                            value={supplierData.address?.city || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, city: e.target.value } })}
                         />
                     </div>
                     <div className="mb-20 col-6">
-                        <label
-                            htmlFor="postalCode"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
-                            Postcode <span className="text-danger-600">*</span>
+                        <label htmlFor="postalCode" className="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Postal Code <span className="text-danger-600">*</span>
                         </label>
                         <input
                             type="text"
                             className="form-control radius-8"
                             id="postalCode"
-                            placeholder="Enter Postcode"
+                            placeholder="Enter Postal Code"
+                            value={supplierData.address?.postcode || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, postcode: e.target.value } })}
                         />
                     </div>
                     <div className="mb-20 col-6">
-                        <label
-                            htmlFor="status"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
+                        <label htmlFor="status" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Status
-                            <span className="text-danger-600">*</span>{" "}
                         </label>
                         <select
-                            className="form-control radius-8 form-select"
+                            className="form-control radius-8"
                             id="status"
+                            value={supplierData.status || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, status: e.target.value })}
                         >
-                            <option disabled>
-                                Select Status
-                            </option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div className="mb-20 col-6">
-                        <label className="form-label fw-semibold text-primary-light text-sm mb-8">
+                        <label htmlFor="deliveryDays" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Delivery Days
                         </label>
                         <Autocomplete
                             multiple
+                            id="deliveryDays"
                             options={weekDays}
-                            value={selectedAreas}
+                            value={selectedDays}
                             onChange={handleAreaChange}
-                            renderTags={(value, getTagProps) =>
-                                value.map((option, index) => (
-                                    <Chip key={index} label={option} {...getTagProps({ index })} />
-                                ))
-                            }
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    placeholder="Type to select week days"
-                                    variant="outlined"
-                                    className="form-control radius-8"
-                                />
-                            )}
+                            renderInput={(params) => <TextField {...params} />}
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -227,7 +264,7 @@ const EditSupplierLayer = () => {
                                 <Chip
                                     key={index}
                                     label={dayjs(date).format('DD-MM-YYYY')}
-                                    onDelete={() => removeDate(date)}
+                                    onDelete={() => removeDate(new Date(date).toLocaleDateString('en-GB'))}
                                     className="me-2 mb-2"
                                 />
                             ))}

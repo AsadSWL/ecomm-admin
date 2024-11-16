@@ -1,11 +1,23 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddProductLayer = () => {
     const [imagePreview, setImagePreview] = useState(null);
+    const [productName, setProductName] = useState('');
+    const [sku, setSku] = useState('');
+    const [price, setPrice] = useState('');
+    const [vat, setVat] = useState('');
+    const [category, setCategory] = useState('');
+    const [supplier, setSupplier] = useState('');
+    const [status, setStatus] = useState('');
+    const [description, setDescription] = useState('');
     const fileInputRef = useRef(null);
+    const token = localStorage.getItem('token');
     const navigate = useNavigate();
+    const [categories, setCategories] = useState([]);
+    const [suppliers, setSuppliers] = useState([]); 
 
     const handleCancel = () => {
         navigate(-1);
@@ -26,12 +38,92 @@ const AddProductLayer = () => {
     };
 
     useEffect(() => {
+        // Fetch categories from the backend
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/get-categories', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.data.status) {
+                    setCategories(response.data.categories);  // Update state with categories
+                } else {
+                    alert('Failed to fetch categories');
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                alert('An error occurred while fetching categories');
+            }
+        };
+
+        // Fetch suppliers from the backend
+        const fetchSuppliers = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/get-suppliers', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.data.status) {
+                    setSuppliers(response.data.suppliers);  // Update state with suppliers
+                } else {
+                    alert('Failed to fetch suppliers');
+                }
+            } catch (error) {
+                console.error('Error fetching suppliers:', error);
+                alert('An error occurred while fetching suppliers');
+            }
+        };
+
+        fetchCategories();
+        fetchSuppliers();
+    }, [token]);
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('name', productName);
+        formData.append('sku', sku);
+        formData.append('price', price);
+        formData.append('vat', vat);
+        formData.append('category', category);
+        formData.append('supplier', supplier);
+        formData.append('status', status);
+        formData.append('description', description);
+        if (fileInputRef.current && fileInputRef.current.files[0]) {
+            formData.append('image', fileInputRef.current.files[0]);
+        }
+
+        try {
+            // Make a POST request to the backend API
+            const response = await axios.post('http://localhost:5000/api/add-product', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.data.status) {
+                navigate('/products-list');  // Redirect to the products list page after successful creation
+            } else {
+                alert('Failed to add product');
+            }
+        } catch (error) {
+            console.error('Error adding product:', error);
+            alert('An error occurred while adding the product');
+        }
+    };
+
+    useEffect(() => {
         return () => {
             if (imagePreview) {
                 URL.revokeObjectURL(imagePreview);
             }
         };
     }, [imagePreview]);
+
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">
             <div className="card-body p-40">
@@ -83,7 +175,7 @@ const AddProductLayer = () => {
                     />
                 </div>
                 {/* Upload Image End */}
-                <form action="#" className='row'>
+                <form onSubmit={handleFormSubmit} className='row'>
                     <div className="mb-20 col-6">
                         <label
                             htmlFor="name"
@@ -95,7 +187,10 @@ const AddProductLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="name"
+                            value={productName}
+                            onChange={(e) => setProductName(e.target.value)}
                             placeholder="Enter Product Name"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -109,7 +204,10 @@ const AddProductLayer = () => {
                             type="text"
                             className="form-control radius-8"
                             id="sku"
+                            value={sku}
+                            onChange={(e) => setSku(e.target.value)}
                             placeholder="Enter product sku"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -123,7 +221,10 @@ const AddProductLayer = () => {
                             type="number"
                             className="form-control radius-8"
                             id="price"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                             placeholder="Enter product price"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -137,7 +238,10 @@ const AddProductLayer = () => {
                             type="number"
                             className="form-control radius-8"
                             id="vat"
+                            value={vat}
+                            onChange={(e) => setVat(e.target.value)}
                             placeholder="Enter VAT"
+                            required
                         />
                     </div>
                     <div className="mb-20 col-6">
@@ -149,14 +253,18 @@ const AddProductLayer = () => {
                             <span className="text-danger-600">*</span>{" "}
                         </label>
                         <select
-                            className="form-control radius-8 form-select"
+                            className="form-control radius-8"
                             id="category"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            required
                         >
-                            <option disabled>
-                                Select Category
-                            </option>
-                            <option value="Category 1">Category 1</option>
-                            <option value="Category 2">Category 2</option>
+                            <option value="">Select Category</option>
+                            {categories.map((category) => (
+                                <option key={category._id} value={category._id}>
+                                    {category.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="mb-20 col-6">
@@ -168,14 +276,18 @@ const AddProductLayer = () => {
                             <span className="text-danger-600">*</span>{" "}
                         </label>
                         <select
-                            className="form-control radius-8 form-select"
+                            className="form-control radius-8"
                             id="supplier"
+                            value={supplier}
+                            onChange={(e) => setSupplier(e.target.value)}
+                            required
                         >
-                            <option disabled>
-                                Select Supplier
-                            </option>
-                            <option value="Supplier 1">Supplier 1</option>
-                            <option value="Supplier 2">Supplier 2</option>
+                            <option value="">Select Supplier</option>
+                            {suppliers.map((supplier) => (
+                                <option key={supplier._id} value={supplier._id}>
+                                    {supplier.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="mb-20 col-6">
@@ -189,6 +301,9 @@ const AddProductLayer = () => {
                         <select
                             className="form-control radius-8 form-select"
                             id="status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            required
                         >
                             <option disabled>
                                 Select Status
@@ -199,18 +314,19 @@ const AddProductLayer = () => {
                     </div>
                     <div className="mb-20 col-12">
                         <label
-                            htmlFor="desc"
+                            htmlFor="description"
                             className="form-label fw-semibold text-primary-light text-sm mb-8"
                         >
                             Description
                         </label>
                         <textarea
-                            name="#0"
+                            id="description"
+                            rows="4"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             className="form-control radius-8"
-                            id="desc"
-                            placeholder="Write description..."
-                            defaultValue={""}
-                        />
+                            placeholder="Enter product description"
+                        ></textarea>
                     </div>
                     <div className="d-flex align-items-center justify-content-center gap-3">
                         <button

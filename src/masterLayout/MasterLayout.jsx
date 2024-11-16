@@ -95,17 +95,17 @@ const MasterLayout = ({ children }) => {
         <div>
           <Link to="/" className="sidebar-logo">
             <img
-              src="assets/images/logo.png"
+              src="/assets/images/logo.png"
               alt="site logo"
               className="light-logo"
             />
             <img
-              src="assets/images/logo-light.png"
+              src="/assets/images/logo-light.png"
               alt="site logo"
               className="dark-logo"
             />
             <img
-              src="assets/images/logo-icon.png"
+              src="/assets/images/logo-icon.png"
               alt="site logo"
               className="logo-icon"
             />
@@ -154,11 +154,11 @@ const MasterLayout = ({ children }) => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/branches-list" className={(navData) =>
+              <NavLink to="/shops-list" className={(navData) =>
                 navData.isActive ? "active-page" : ""
               }>
-                <Icon icon="qlementine-icons:users-16" className="menu-icon" />
-                <span>Branches</span>
+                <Icon icon="solar:shop-2-linear" className="menu-icon" />
+                <span>Shops</span>
               </NavLink>
             </li>
             <li>
@@ -213,7 +213,7 @@ const MasterLayout = ({ children }) => {
                     data-bs-toggle="dropdown"
                   >
                     <img
-                      src="assets/images/logo.png"
+                      src="/assets/images/logo.png"
                       alt="image_user"
                       className="w-40-px h-40-px object-fit-cover rounded-circle"
                     />

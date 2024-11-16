@@ -11,10 +11,13 @@ const SignInLayer = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
+    const baseURL = process.env.REACT_APP_BASE_URL;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("https://ecomm-backend-sooty.vercel.app/api/auth/login", { email, password });
+            const url = `${baseURL}/api/auth/login`;
+            const response = await axios.post(url, { email, password });
             login(response.data.token);
             navigate("/dashboard");
         } catch (err) {
@@ -28,7 +31,7 @@ const SignInLayer = () => {
                 <div className="max-w-464-px mx-auto w-100">
                     <div>
                         <Link to="/" className="mb-40 max-w-290-px">
-                            <img src="assets/images/logo.png" alt="" />
+                            <img src="/assets/images/logo.png" alt="" />
                         </Link>
                         <h4 className="mb-12">Sign In to your Account</h4>
                         <p className="mb-32 text-secondary-light text-lg">

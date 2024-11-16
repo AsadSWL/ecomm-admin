@@ -1,11 +1,19 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const EditCategoryLayer = () => {
     const [imagePreview, setImagePreview] = useState(null);
+    const [categoryName, setCategoryName] = useState('');
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+    const { categoryId } = useParams();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const handleCancel = () => {
         navigate(-1);
@@ -25,6 +33,68 @@ const EditCategoryLayer = () => {
         }
     };
 
+    const handleCategoryNameChange = (e) => {
+        setCategoryName(e.target.value);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!categoryName) {
+            setError('Category name is required.');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append('id', categoryId);
+        formData.append('name', categoryName);
+        if (fileInputRef.current.files[0]) {
+            formData.append('image', fileInputRef.current.files[0]);
+        }
+
+        axios
+            .post(`${baseURL}/api/update-category`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                setLoading(false);
+                navigate('/categories-list');
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError(error.response?.data?.message || 'Error updating category');
+            });
+    };
+
+    const fetchCategoryDetails = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/get-category/${categoryId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            const data = await response.json();
+            if (data.status) {
+                setCategoryName(data.categories[0].name);
+                setImagePreview('http://localhost:5000' + data.categories[0].image);
+            } else {
+                alert('Failed to fetch category details');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategoryDetails();
+    }, [categoryId]);
+
     useEffect(() => {
         return () => {
             if (imagePreview) {
@@ -32,6 +102,7 @@ const EditCategoryLayer = () => {
             }
         };
     }, [imagePreview]);
+
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">
             <div className="card-body p-40">
@@ -83,7 +154,7 @@ const EditCategoryLayer = () => {
                     />
                 </div>
                 {/* Upload Image End */}
-                <form action="#">
+                <form onSubmit={handleSubmit}>
                     <div className="mb-20">
                         <label
                             htmlFor="name"
@@ -96,6 +167,8 @@ const EditCategoryLayer = () => {
                             className="form-control radius-8"
                             id="name"
                             placeholder="Enter Category Name"
+                            value={categoryName}
+                            onChange={handleCategoryNameChange}
                         />
                     </div>
                     <div className="d-flex align-items-center justify-content-center gap-3">

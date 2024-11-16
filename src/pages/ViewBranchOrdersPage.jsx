@@ -11,7 +11,7 @@ const ViewBranchOrdersPage = () => {
       <MasterLayout>
 
         {/* Breadcrumb */}
-        <Breadcrumb title="View Branch Order" />
+        <Breadcrumb title="View Shop Orders" />
 
         {/* AddBranchLayer */}
         <AddBranchLayer />

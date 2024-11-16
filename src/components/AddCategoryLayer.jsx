@@ -1,11 +1,18 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddCategoryLayer = () => {
     const [imagePreview, setImagePreview] = useState(null);
+    const [categoryName, setCategoryName] = useState('');
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const handleCancel = () => {
         navigate(-1);
@@ -25,6 +32,46 @@ const AddCategoryLayer = () => {
         }
     };
 
+    const handleCategoryNameChange = (e) => {
+        setCategoryName(e.target.value);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    
+        if (!categoryName) {
+            setError('Category name is required.');
+            return;
+        }
+    
+        setLoading(true);
+        setError(null);
+    
+        const formData = new FormData();
+        formData.append('name', categoryName);
+    
+        if (fileInputRef.current.files.length > 0) {
+            formData.append('image', fileInputRef.current.files[0]);
+        }
+    
+        axios
+            .post(`${baseURL}/api/add-category`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                setLoading(false);
+                navigate('/categories-list');
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError(error.response?.data?.message || 'Error adding category');
+            });
+    };
+    
+
     useEffect(() => {
         return () => {
             if (imagePreview) {
@@ -32,6 +79,7 @@ const AddCategoryLayer = () => {
             }
         };
     }, [imagePreview]);
+
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">
             <div className="card-body p-40">
@@ -83,7 +131,7 @@ const AddCategoryLayer = () => {
                     />
                 </div>
                 {/* Upload Image End */}
-                <form action="#">
+                <form onSubmit={handleSubmit}>
                     <div className="mb-20">
                         <label
                             htmlFor="name"
@@ -96,8 +144,11 @@ const AddCategoryLayer = () => {
                             className="form-control radius-8"
                             id="name"
                             placeholder="Enter Category Name"
+                            value={categoryName}
+                            onChange={handleCategoryNameChange}
                         />
                     </div>
+                    {error && <p className="text-danger">{error}</p>}
                     <div className="d-flex align-items-center justify-content-center gap-3">
                         <button
                             onClick={handleCancel}
@@ -109,8 +160,9 @@ const AddCategoryLayer = () => {
                         <button
                             type="submit"
                             className="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8"
+                            disabled={loading}
                         >
-                            Save
+                            {loading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 </form>

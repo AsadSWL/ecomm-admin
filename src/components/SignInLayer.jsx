@@ -17,7 +17,12 @@ const SignInLayer = () => {
         e.preventDefault();
         try {
             const url = `${baseURL}/api/auth/login`;
-            const response = await axios.post(url, { email, password });
+            const response = await axios.post(url, { email, password }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: false,
+            });
             login(response.data.token);
             navigate("/dashboard");
         } catch (err) {

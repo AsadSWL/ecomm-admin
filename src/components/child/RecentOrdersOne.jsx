@@ -79,7 +79,7 @@ const RecentOrdersOne = () => {
                                         <tr key={index}>
                                             <td>{index + 1}</td>
                                             <td>
-                                                {order?.branch?.firstname + " " + order?.branch?.lastname}
+                                                {order?.branch?.firstname}
                                             </td>
                                             <td>
                                                 {order?.supplier?.name}

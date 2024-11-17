@@ -9,6 +9,7 @@ const SignInLayer = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     const baseURL = process.env.REACT_APP_BASE_URL;
@@ -30,12 +31,16 @@ const SignInLayer = () => {
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
+
     return (
         <section className="auth bg-base d-flex flex-wrap" style={{ alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
             <div className="auth-right py-32 px-24 d-flex flex-column justify-content-center">
                 <div className="max-w-464-px mx-auto w-100">
                     <div>
-                        <Link to="/" className="mb-40 max-w-290-px">
+                        <Link to="/" className="mb-40 d-flex justify-content-center">
                             <img src="/assets/images/logo.png" alt="" />
                         </Link>
                         <h4 className="mb-12">Sign In to your Account</h4>
@@ -64,9 +69,9 @@ const SignInLayer = () => {
                                     <Icon icon="solar:lock-password-outline" />
                                 </span>
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     className="form-control h-56-px bg-neutral-50 radius-12"
-                                    id="your-password"
+                                    id="password"
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -74,9 +79,14 @@ const SignInLayer = () => {
                                 />
                             </div>
                             <span
-                                className="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
-                                data-toggle="#your-password"
-                            />
+                                className="toggle-password cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
+                                onClick={togglePasswordVisibility}
+                                style={{ marginTop: '-5px' }}
+                            >
+                                <Icon
+                                    icon={showPassword ? 'ri-eye-close-line' : 'ri-eye-line'}
+                                />
+                            </span>
                         </div>
                         <button
                             type="submit"

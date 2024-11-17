@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const AddShopLayer = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const [formData, setFormData] = useState({
         name: '',
@@ -32,7 +33,7 @@ const AddShopLayer = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:5000/api/create-branch', {
+            const response = await fetch(`${baseURL}/api/create-branch`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

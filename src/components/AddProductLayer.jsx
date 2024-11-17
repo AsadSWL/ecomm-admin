@@ -17,7 +17,8 @@ const AddProductLayer = () => {
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
-    const [suppliers, setSuppliers] = useState([]); 
+    const [suppliers, setSuppliers] = useState([]);
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const handleCancel = () => {
         navigate(-1);
@@ -41,7 +42,7 @@ const AddProductLayer = () => {
         // Fetch categories from the backend
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-categories', {
+                const response = await axios.get(`${baseURL}/api/get-categories`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -60,7 +61,7 @@ const AddProductLayer = () => {
         // Fetch suppliers from the backend
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-suppliers', {
+                const response = await axios.get(`${baseURL}/api/get-suppliers`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -98,7 +99,7 @@ const AddProductLayer = () => {
 
         try {
             // Make a POST request to the backend API
-            const response = await axios.post('http://localhost:5000/api/add-product', formData, {
+            const response = await axios.post(`${baseURL}/api/add-product`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,

@@ -19,10 +19,11 @@ const EditSupplierLayer = () => {
     const [selectedDays, setSelectedDays] = useState([]);
     const [selectedDates, setSelectedDates] = useState([]);
     const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const fetchSupplier = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/get-supplier/${supplierId}`,{
+            const response = await axios.get(`${baseURL}/api/get-supplier/${supplierId}`,{
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
@@ -30,7 +31,7 @@ const EditSupplierLayer = () => {
             });
             const data = response.data.supplier.length > 0 ? response.data.supplier[0] : [];
             setSupplierData(data);
-            setImagePreview("http://localhost:5000" + data?.icon);
+            setImagePreview(baseURL + data?.icon);
             setSelectedDays(data?.deliveryDays || []);
             setSelectedDates(data?.holidays?.holidays?.map(dayjs) || []);
         } catch (error) {
@@ -86,7 +87,7 @@ const EditSupplierLayer = () => {
         }
 
         try {
-            await axios.post("http://localhost:5000/api/update-supplier", formData, {
+            await axios.post(`${baseURL}/api/update-supplier`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`,

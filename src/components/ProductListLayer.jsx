@@ -57,7 +57,7 @@ const ProductListLayer = () => {
     const handleDeleteProduct = async () => {
         try {
             if (productToDelete) {
-                await axios.delete(`http://localhost:5000/api/delete-product/${productToDelete._id}`, {
+                await axios.delete(`${baseURL}/api/delete-product/${productToDelete._id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

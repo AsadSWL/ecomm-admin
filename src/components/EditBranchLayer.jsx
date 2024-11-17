@@ -5,6 +5,7 @@ const EditBranchLayer = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const token = localStorage.getItem('token');
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const [formData, setFormData] = useState({
         id: '',
@@ -23,7 +24,7 @@ const EditBranchLayer = () => {
     useEffect(() => {
         const fetchBranchData = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/get-branch/${id}`, {
+                const response = await fetch(`${baseURL}/api/get-branch/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -82,7 +83,7 @@ const EditBranchLayer = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://localhost:5000/api/update-branch`, {
+            const response = await fetch(`${baseURL}/api/update-branch`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

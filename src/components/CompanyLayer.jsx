@@ -7,6 +7,7 @@ const CompanyLayer = () => {
     const { user, setUser } = useAuth();
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     const [profileData, setProfileData] = useState({
         firstname: user.firstname,
@@ -36,7 +37,7 @@ const CompanyLayer = () => {
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/api/update-profile', profileData, {
+            const response = await axios.put(`${baseURL}/api/update-profile`, profileData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
@@ -61,7 +62,7 @@ const CompanyLayer = () => {
         }
 
         try {
-            await axios.put('http://localhost:5000/api/update-password', passwordData,{
+            await axios.put(`${baseURL}/api/update-password`, passwordData,{
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

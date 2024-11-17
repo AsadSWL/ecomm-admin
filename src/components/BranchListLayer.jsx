@@ -58,7 +58,7 @@ const BranchListLayer = () => {
     const handleDeleteShop = async () => {
         try {
             if (shopToDelete) {
-                await axios.delete(`http://localhost:5000/api/delete-branch/${shopToDelete._id}`, {
+                await axios.delete(`${baseURL}/api/delete-branch/${shopToDelete._id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

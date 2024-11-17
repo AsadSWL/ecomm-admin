@@ -23,12 +23,13 @@ const EditProductLayer = () => {
     const token = localStorage.getItem('token');
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
+    const baseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         // Fetch categories from the backend
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-categories', {
+                const response = await axios.get(`${baseURL}/api/get-categories`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -47,7 +48,7 @@ const EditProductLayer = () => {
         // Fetch suppliers from the backend
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-suppliers', {
+                const response = await axios.get(`${baseURL}/api/get-suppliers`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -70,7 +71,7 @@ const EditProductLayer = () => {
     useEffect(() => {
         const fetchProductData = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/get-product/${productId}`, {
+                const response = await fetch(`${baseURL}/api/get-product/${productId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -86,9 +87,9 @@ const EditProductLayer = () => {
                     supplier: data.product.length > 0 ? data.product[0]?.supplier?._id : '',
                     status: data.product.length > 0 ? data.product[0]?.status : '',
                     description: data.product.length > 0 ? data.product[0]?.description : '',
-                    image: "http://localhost:5000" + data.product.length > 0 ? data.product[0]?.image : '',
+                    image: baseURL + data.product.length > 0 ? data.product[0]?.image : '',
                 });
-                setImagePreview("http://localhost:5000" + data.product[0]?.image);
+                setImagePreview(baseURL + data.product[0]?.image);
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching product data:', error);
@@ -134,7 +135,7 @@ const EditProductLayer = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/api/update-product', formData, {
+            const response = await axios.post(`${baseURL}/api/update-product`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,

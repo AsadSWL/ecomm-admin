@@ -20,7 +20,7 @@ const SupplierListLayer = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-suppliers', {
+                const response = await axios.get(`${baseURL}/api/get-suppliers`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -59,7 +59,7 @@ const SupplierListLayer = () => {
     const handleDeleteSupplier = async () => {
         try {
             if (supplierToDelete) {
-                await axios.delete(`http://localhost:5000/api/delete-supplier/${supplierToDelete._id}`, {
+                await axios.delete(`${baseURL}/api/delete-supplier/${supplierToDelete._id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

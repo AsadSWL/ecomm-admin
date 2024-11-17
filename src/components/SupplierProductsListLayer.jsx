@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const SupplierProductsListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
@@ -25,7 +25,7 @@ const SupplierProductsListLayer = () => {
             },
         })
             .then((response) => {
-                setProducts(response.data.products);
+                setProducts(response.data.products || []);
                 setLoading(false);
             })
             .catch((error) => {
@@ -50,9 +50,9 @@ const SupplierProductsListLayer = () => {
     };
 
     const filteredProducts = products.filter(product => {
-        const matchesStatus = statusFilter === 'All' || product.status === statusFilter;
+        const matchesStatus = statusFilter === 'All' || product?.status === statusFilter;
         const matchesSearchTerm =
-            product.name.toLowerCase().includes(searchTerm.toLowerCase());
+            product?.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesStatus && matchesSearchTerm;
     });
 
@@ -151,8 +151,8 @@ const SupplierProductsListLayer = () => {
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <img
-                                            src={baseURL + product.image}
-                                            alt={product.name}
+                                            src={baseURL + product?.image}
+                                            alt={product?.name}
                                             className="flex-shrink-0 me-12 radius-8"
                                             width={50}
                                         />
@@ -161,17 +161,17 @@ const SupplierProductsListLayer = () => {
                                         </h6>
                                     </div>
                                 </td>
-                                <td>{product.category.name}</td>
-                                <td>{product.supplier.name}</td>
-                                <td>{product.price}</td>
-                                <td>{product.vat}</td>
+                                <td>{product?.category?.name}</td>
+                                <td>{product?.supplier?.name}</td>
+                                <td>{product?.price}</td>
+                                <td>{product?.vat}</td>
                                 <td>
-                                    <span className={`bg-${product.status === 'Active' ? 'success' : 'warning'}-focus text-${product.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
-                                        {product.status}
+                                    <span className={`bg-${product?.status === 'Active' ? 'success' : 'warning'}-focus text-${product?.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
+                                        {product?.status}
                                     </span>
                                 </td>
                                 <td>
-                                    <Link to={`/products-edit/${product._id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                    <Link to={`/products-edit/${product?._id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <Icon icon="lucide:edit" />
                                     </Link>
                                     <Link to="#" className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">

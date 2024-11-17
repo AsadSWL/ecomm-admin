@@ -18,7 +18,7 @@ const InvoicePreviewLayer = () => {
                 },
             })
             .then(response => {
-                setOrder(response.data.order[0]);
+                setOrder(response.data.order[0] || {});
                 setLoading(false);
             })
             .catch(error => {
@@ -50,7 +50,7 @@ const InvoicePreviewLayer = () => {
                                                     <td className="ps-8">:{new Date(order.createdAt).toLocaleDateString('en-GB')}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Branch</td>
+                                                    <td>Shop</td>
                                                     <td className="ps-8">:{order?.branch?.firstname}</td>
                                                 </tr>
                                                 <tr>
@@ -92,12 +92,12 @@ const InvoicePreviewLayer = () => {
 
                                                     return (
                                                     <tr key={index}>
-                                                        <td>{item.product.name}</td>
-                                                        <td>{order.supplier.name}</td>
-                                                        <td>{item.quantity}</td>
-                                                        <td>{item.product.price}</td>
-                                                        <td>20%</td>
-                                                        <td className="text-end">{productPriceWithVAT.toFixed(2) * item.quantity}</td>
+                                                        <td>{item?.product?.name}</td>
+                                                        <td>{item?.product?.supplier?.name}</td>
+                                                        <td>{item?.quantity}</td>
+                                                        <td>{item?.product?.price}</td>
+                                                        <td>{item?.product?.vat}</td>
+                                                        <td className="text-end">{productPriceWithVAT.toFixed(2) * item?.quantity}</td>
                                                     </tr>
                                                     );
                                                 })}
@@ -114,7 +114,7 @@ const InvoicePreviewLayer = () => {
                                                         <td className="pe-64">Subtotal:</td>
                                                         <td className="pe-16">
                                                             <span className="text-primary-light fw-semibold">
-                                                                {order.products.reduce((total, item) => total + (item.product.price * 1.20) * item.quantity, 0).toFixed(2)}
+                                                                {order.products.reduce((total, item) => total + (item?.product?.price * (item?.product?.vat/100 + 1)) * item?.quantity, 0).toFixed(2)}
                                                             </span>
                                                         </td>
                                                     </tr>
@@ -122,7 +122,7 @@ const InvoicePreviewLayer = () => {
                                                         <td className="pe-64">VAT:</td>
                                                         <td className="pe-16">
                                                             <span className="text-primary-light fw-semibold">
-                                                                {order.products.reduce((total, item) => total + item.product.price * 0.20 * item.quantity, 0).toFixed(2)}
+                                                                {order.products.reduce((total, item) => total + item?.product?.price * (item?.product?.vat/100) * item?.quantity, 0).toFixed(2)}
                                                             </span>
                                                         </td>
                                                     </tr>
@@ -134,8 +134,8 @@ const InvoicePreviewLayer = () => {
                                                         </td>
                                                         <td className="pe-16 pt-4">
                                                             <span className="text-primary-light fw-semibold">
-                                                            {(order.products.reduce((total, item) => total + item.product.price * item.quantity, 0) + 
-                                                                order.products.reduce((total, item) => total + item.product.price * 0.20 * item.quantity, 0))
+                                                            {(order.products.reduce((total, item) => total + item?.product?.price * item?.quantity, 0) + 
+                                                                order.products.reduce((total, item) => total + item?.product?.price * 0.20 * item?.quantity, 0))
                                                                     .toFixed(2)}
                                                             </span>
                                                         </td>

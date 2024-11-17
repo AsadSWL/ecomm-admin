@@ -81,8 +81,8 @@ const EditCategoryLayer = () => {
             });
             const data = await response.json();
             if (data.status) {
-                setCategoryName(data.categories[0].name);
-                setImagePreview('http://localhost:5000' + data.categories[0].image);
+                setCategoryName(data.categories[0]?.name);
+                setImagePreview('http://localhost:5000' + data.categories[0]?.image);
             } else {
                 alert('Failed to fetch category details');
             }

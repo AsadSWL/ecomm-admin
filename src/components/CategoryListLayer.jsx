@@ -11,8 +11,9 @@ const CategoryListLayer = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState(null);
     const token = localStorage.getItem('token');
-
     const baseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
@@ -27,7 +28,7 @@ const CategoryListLayer = () => {
                 setLoading(false);
             })
             .catch((error) => {
-                console.error('Error fetching transactions:', error);
+                console.error('Error fetching categories:', error);
                 setLoading(false);
             });
     }, [token, baseURL]);
@@ -43,9 +44,7 @@ const CategoryListLayer = () => {
     };
 
     const filteredCategories = categories.filter(category => {
-        const matchesSearchTerm =
-            category.name.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesSearchTerm;
+        return category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
     const totalPages = Math.ceil(filteredCategories.length / entriesPerPage);
@@ -68,8 +67,63 @@ const CategoryListLayer = () => {
         ))
     );
 
+    // Handle delete category
+    const handleDeleteCategory = (id) => {
+        setCategoryToDelete(id);
+        setDeleteModalVisible(true);
+    };
+
+    const confirmDeleteCategory = () => {
+        if (categoryToDelete) {
+            axios.delete(`${baseURL}/api/delete-category/${categoryToDelete}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then(() => {
+                    setCategories(categories.filter(category => category?._id !== categoryToDelete)); // Remove deleted category from the list
+                    setDeleteModalVisible(false);
+                })
+                .catch((error) => {
+                    console.error('Error deleting category:', error);
+                    alert(error.response.data.error);
+                    setDeleteModalVisible(false);
+                });
+        }
+    };
+
+    const cancelDelete = () => {
+        setDeleteModalVisible(false);
+        setCategoryToDelete(null);
+    };
+
     return (
         <div className="card">
+            {/* Modal for confirming deletion */}
+            {deleteModalVisible && (
+                <div className="modal" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#00000066' }}>
+                    <div className="modal-content" style={{ width: '500px', height: 'auto', padding: '10px' }}>
+                        <div style={{ padding: '20px', textAlign: 'center' }}>
+                            <b>Are you sure you want to delete this category?</b>
+                        </div>
+                        <div className="d-flex align-items-center justify-content-center gap-3">
+                            <button
+                                onClick={confirmDeleteCategory}
+                                className="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={cancelDelete}
+                                className="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div className="d-flex flex-wrap align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
@@ -100,6 +154,7 @@ const CategoryListLayer = () => {
                     </Link>
                 </div>
             </div>
+
             <div className="card-body">
                 <table className="table bordered-table mb-0">
                     <thead>
@@ -128,19 +183,19 @@ const CategoryListLayer = () => {
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <img
-                                            src={baseURL + category.image}
-                                            alt={category.name}
+                                            src={baseURL + category?.image}
+                                            alt={category?.name}
                                             className="flex-shrink-0 me-12 radius-8"
                                             width={50}
                                         />
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {category.name}
+                                            {category?.name}
                                         </h6>
                                     </div>
                                 </td>
                                 <td>
                                     <Link
-                                        to={`/categories-edit/${category._id}`}
+                                        to={`/categories-edit/${category?._id}`}
                                         className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                     >
                                         <Icon icon="lucide:edit" />
@@ -148,6 +203,7 @@ const CategoryListLayer = () => {
                                     <Link
                                         to="#"
                                         className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        onClick={() => handleDeleteCategory(category?._id)}
                                     >
                                         <Icon icon="mingcute:delete-2-line" />
                                     </Link>
@@ -156,6 +212,7 @@ const CategoryListLayer = () => {
                         ))}
                     </tbody>
                 </table>
+
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                     <span>
                         Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, filteredCategories.length)} of {filteredCategories.length} entries
@@ -163,7 +220,7 @@ const CategoryListLayer = () => {
                     <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage - 1)}
                             >
@@ -173,7 +230,7 @@ const CategoryListLayer = () => {
                         {[...Array(totalPages)].map((_, index) => (
                             <li key={index} className="page-item">
                                 <Link
-                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px`}
+                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px`}
                                     to="#"
                                     onClick={() => handlePageChange(index + 1)}
                                 >
@@ -183,7 +240,7 @@ const CategoryListLayer = () => {
                         ))}
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage + 1)}
                             >

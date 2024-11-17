@@ -54,7 +54,7 @@ const RecentOrdersOne = () => {
                             <thead>
                                 <tr>
                                     <th scope="col">S.L</th>
-                                    <th scope="col">Branch</th>
+                                    <th scope="col">Shop</th>
                                     <th scope="col">Suppliers</th>
                                     <th scope="col">Order Date</th>
                                     <th scope="col">Amount</th>

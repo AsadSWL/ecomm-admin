@@ -4,26 +4,28 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useParams } from 'react-router-dom';
 
-const OrderListLayer = () => {
+const ViewSupplierOrdersLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem('token');
+    const { supplierId } = useParams();
 
     const baseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        const url = `${baseURL}/api/get-all-orders`;
+        const url = `${baseURL}/api/get-orders-for-supplier/${supplierId}`;
         axios.get(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         })
             .then((response) => {
-                setOrders(response.data.orders || []);
+                setOrders(response.data.order || []);
                 setLoading(false);
             })
             .catch((error) => {
@@ -43,11 +45,7 @@ const OrderListLayer = () => {
     };
 
     const filteredOrders = orders.filter((order) => {
-        const matchesSearchTerm =
-            order?.branch?.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order?.supplier?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order?.totalPrice.toString().includes(searchTerm) ||
-            order?.deliveryAddress.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearchTerm = order?.branch[0]?.firstname.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesSearchTerm;
     });
 
@@ -125,7 +123,7 @@ const OrderListLayer = () => {
                         {loading ? renderSkeletonRows() : currentOrders.map((order, index) => (
                             <tr key={index}>
                                 <td>{startIndex + index + 1}</td>
-                                <td>{order?.branch?.firstname}</td>
+                                <td>{order?.branch[0]?.firstname}</td>
                                 <td>
                                     {new Date(order?.createdAt).toLocaleDateString('en-GB', {
                                         year: 'numeric',
@@ -162,17 +160,17 @@ const OrderListLayer = () => {
                         <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                             <li className="page-item">
                                 <Link
-                                    className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
+                                    className="page-link"
                                     to="#"
                                     onClick={() => handlePageChange(currentPage - 1)}
                                 >
-                                    <Icon icon="ep:d-arrow-left" className="text-xl" />
+                                    <Icon icon="ep:d-arrow-left" />
                                 </Link>
                             </li>
                             {[...Array(totalPages)].map((_, index) => (
                                 <li key={index} className="page-item">
                                     <Link
-                                        className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px`}
+                                        className={`page-link ${index + 1 === currentPage ? 'active' : ''}`}
                                         to="#"
                                         onClick={() => handlePageChange(index + 1)}
                                     >
@@ -182,11 +180,11 @@ const OrderListLayer = () => {
                             ))}
                             <li className="page-item">
                                 <Link
-                                    className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
+                                    className="page-link"
                                     to="#"
                                     onClick={() => handlePageChange(currentPage + 1)}
                                 >
-                                    <Icon icon="ep:d-arrow-right" className="text-xl" />
+                                    <Icon icon="ep:d-arrow-right" />
                                 </Link>
                             </li>
                         </ul>
@@ -197,4 +195,4 @@ const OrderListLayer = () => {
     );
 };
 
-export default OrderListLayer;
+export default ViewSupplierOrdersLayer;

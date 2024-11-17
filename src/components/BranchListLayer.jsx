@@ -5,7 +5,7 @@ import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const ShopListLayer = () => {
+const BranchListLayer = () => {
     const [entriesPerPage, setEntriesPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('All');
@@ -13,6 +13,8 @@ const ShopListLayer = () => {
     const [shops, setShops] = useState([]);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem('token');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [shopToDelete, setShopToDelete] = useState(null);
 
     const baseURL = process.env.REACT_APP_BASE_URL;
 
@@ -46,6 +48,35 @@ const ShopListLayer = () => {
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1);
+    };
+
+    const handleDeleteClick = (shop) => {
+        setShopToDelete(shop);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteShop = async () => {
+        try {
+            if (shopToDelete) {
+                await axios.delete(`http://localhost:5000/api/delete-branch/${shopToDelete._id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setShops((prevShops) =>
+                    prevShops.filter((shop) => shop._id !== shopToDelete._id)
+                );
+                setShowDeleteModal(false);
+            }
+        } catch (error) {
+            console.error('Error deleting shop:', error);
+        }
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+        setShopToDelete(null);
     };
 
     const filteredShops = shops.filter(shop => {
@@ -152,43 +183,44 @@ const ShopListLayer = () => {
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {shop.firstname}
+                                            {shop?.firstname}
                                         </h6>
                                     </div>
                                 </td>
                                 <td>
-                                    {shop.email}
+                                    {shop?.email}
                                 </td>
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                            {shop.address.street + ', ' + shop.address.city}
+                                            {shop?.address?.street + ', ' + shop?.address?.city}
                                         </h6>
                                     </div>
                                 </td>
-                                <td>{shop.paymentMethod}</td>
+                                <td>{shop?.paymentMethod}</td>
                                 <td>
                                     <span
-                                        className={`bg-${shop.status === 'Active' ? 'success' : 'warning'}-focus text-${shop.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
+                                        className={`bg-${shop?.status === 'Active' ? 'success' : 'warning'}-focus text-${shop?.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}
                                     >
-                                        {shop.status}
+                                        {shop?.status}
                                     </span>
                                 </td>
                                 <td>
-                                    {/* <Link
-                                            to="/shops-view"
-                                            className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                        >
-                                            <Icon icon="iconamoon:eye-light" />
-                                        </Link> */}
                                     <Link
-                                        to={`/shop-edit/${shop._id}`}
+                                            to={`/shops-orders/${shop?._id}`}
+                                            className=" me-8 bg-info-focus text-primary px-24 py-4 rounded-pill fw-medium text-sm"
+                                        >
+                                            View Orders
+                                    </Link>
+                                    <Link
+                                        to={`/shop-edit/${shop?._id}`}
                                         className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                     >
                                         <Icon icon="lucide:edit" />
                                     </Link>
                                     <Link
                                         to="#"
+                                        onClick={() => handleDeleteClick(shop)}
                                         className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                     >
                                         <Icon icon="mingcute:delete-2-line" />
@@ -205,7 +237,7 @@ const ShopListLayer = () => {
                     <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage - 1)}
                             >
@@ -215,7 +247,7 @@ const ShopListLayer = () => {
                         {[...Array(totalPages)].map((_, index) => (
                             <li key={index} className="page-item">
                                 <Link
-                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px`}
+                                    className={`page-link ${index + 1 === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'} fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px`}
                                     to="#"
                                     onClick={() => handlePageChange(index + 1)}
                                 >
@@ -225,7 +257,7 @@ const ShopListLayer = () => {
                         ))}
                         <li className="page-item">
                             <Link
-                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
+                                className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base"
                                 to="#"
                                 onClick={() => handlePageChange(currentPage + 1)}
                             >
@@ -235,8 +267,32 @@ const ShopListLayer = () => {
                     </ul>
                 </div>
             </div>
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="modal fade show" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#00000066' }}>
+                    <div className="modal-content" style={{ width: '500px', height: 'auto', padding: '10px' }}>
+                        <div style={{ padding: '20px', textAlign: 'center' }}>
+                            <b>Are you sure you want to delete this shop?</b>
+                        </div>
+                        <div className="d-flex align-items-center justify-content-center gap-3">
+                            <button
+                                onClick={handleDeleteShop}
+                                className="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={handleCloseDeleteModal}
+                                className="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default ShopListLayer;
+export default BranchListLayer;

@@ -53,13 +53,13 @@ function App() {
                     <Route exact path="/suppliers-add" element={<ProtectedRoute element={AddSupplierPage} allowedRoles={['admin']} />} />
                     <Route exact path="/suppliers-edit/:supplierId" element={<ProtectedRoute element={EditSupplierPage} allowedRoles={['admin']} />} />
                     <Route exact path="/supplier-products/:supplierId" element={<ProtectedRoute element={ViewSupplierProductsPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/suppliers-orders" element={<ProtectedRoute element={ViewSupplierOrdersPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/supplier-orders/:supplierId" element={<ProtectedRoute element={ViewSupplierOrdersPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/shops-list" element={<ProtectedRoute element={BranchListPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shop-view" element={<ProtectedRoute element={ViewBranchPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shop-add" element={<ProtectedRoute element={AddBranchPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shop-edit/:id" element={<ProtectedRoute element={EditBranchPage} allowedRoles={['admin']} />} />
-                    <Route exact path="/shops-orders" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/shops-orders/:id" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/transactions-list" element={<ProtectedRoute element={TransactionListPage} allowedRoles={['admin']} />} />
 

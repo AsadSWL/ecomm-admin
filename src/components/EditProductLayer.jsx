@@ -34,7 +34,7 @@ const EditProductLayer = () => {
                     },
                 });
                 if (response.data.status) {
-                    setCategories(response.data.categories);  // Update state with categories
+                    setCategories(response.data?.categories);
                 } else {
                     alert('Failed to fetch categories');
                 }
@@ -77,17 +77,18 @@ const EditProductLayer = () => {
                 });
                 const data = await response.json();
                 setProductData({
-                    name: data.product[0].name,
-                    sku: data.product[0].sku,
-                    price: data.product[0].price,
-                    vat: data.product[0].vat,
-                    category: data.product[0].category._id,
-                    supplier: data.product[0].supplier._id,
-                    status: data.product[0].status,
-                    description: data.product[0].description,
-                    image: "http://localhost:5000" + data.product[0].image,
+                    id: data.product.length > 0 ? data.product[0]?._id : '',
+                    name: data.product.length > 0 ? data.product[0]?.name : '',
+                    sku: data.product.length > 0 ? data.product[0]?.sku : '',
+                    price: data.product.length > 0 ? data.product[0]?.price : '',
+                    vat: data.product.length > 0 ? data.product[0]?.vat : '',
+                    category: data.product.length > 0 ? data.product[0]?.category?._id : '',
+                    supplier: data.product.length > 0 ? data.product[0]?.supplier?._id : '',
+                    status: data.product.length > 0 ? data.product[0]?.status : '',
+                    description: data.product.length > 0 ? data.product[0]?.description : '',
+                    image: "http://localhost:5000" + data.product.length > 0 ? data.product[0]?.image : '',
                 });
-                setImagePreview("http://localhost:5000" + data.product[0].image);
+                setImagePreview("http://localhost:5000" + data.product[0]?.image);
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching product data:', error);
@@ -118,14 +119,15 @@ const EditProductLayer = () => {
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append('name', productData.name);
-        formData.append('sku', productData.sku);
-        formData.append('price', productData.price);
-        formData.append('vat', productData.vat);
-        formData.append('category', productData.category);
-        formData.append('supplier', productData.supplier);
-        formData.append('status', productData.status);
-        formData.append('description', productData.description);
+        formData.append('id', productData?.id);
+        formData.append('name', productData?.name);
+        formData.append('sku', productData?.sku);
+        formData.append('price', productData?.price);
+        formData.append('vat', productData?.vat);
+        formData.append('category', productData?.category);
+        formData.append('supplier', productData?.supplier);
+        formData.append('status', productData?.status);
+        formData.append('description', productData?.description);
         
         if (fileInputRef.current && fileInputRef.current.files[0]) {
             formData.append('image', fileInputRef.current.files[0]);
@@ -146,13 +148,9 @@ const EditProductLayer = () => {
             }
         } catch (error) {
             console.error('Error updating product:', error);
-            alert('An error occurred while adding the product');
+            alert('An error occurred while updating the product');
         }
     };
-
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <div className="card h-100 p-0 radius-12 overflow-hidden">

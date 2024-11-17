@@ -28,10 +28,10 @@ const EditSupplierLayer = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const data = response.data.supplier[0];
+            const data = response.data.supplier.length > 0 ? response.data.supplier[0] : [];
             setSupplierData(data);
-            setImagePreview("http://localhost:5000" + data.icon);
-            setSelectedDays(data.deliveryDays || []);
+            setImagePreview("http://localhost:5000" + data?.icon);
+            setSelectedDays(data?.deliveryDays || []);
             setSelectedDates(data?.holidays?.holidays?.map(dayjs) || []);
         } catch (error) {
             console.error("Error fetching supplier data:", error);
@@ -72,13 +72,14 @@ const EditSupplierLayer = () => {
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append("name", supplierData.name);
-        formData.append("streetAddress", supplierData.address.street);
-        formData.append("city", supplierData.address.city);
-        formData.append("postalCode", supplierData.address.postcode);
-        formData.append("status", supplierData.status);
+        formData.append("id", supplierData?._id);
+        formData.append("name", supplierData?.name);
+        formData.append("streetAddress", supplierData?.address?.street);
+        formData.append("city", supplierData?.address?.city);
+        formData.append("postalCode", supplierData?.address?.postcode);
+        formData.append("status", supplierData?.status);
         formData.append("deliveryDays", JSON.stringify(selectedDays));
-        formData.append("holidays", JSON.stringify(selectedDates.map(date => new Date(date).toISOString())));
+        formData.append("holidays", JSON.stringify(selectedDates.map(date => date)));
 
         if (fileInputRef.current?.files[0]) {
             formData.append("logo", fileInputRef.current.files[0]);
@@ -171,7 +172,7 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="name"
                             placeholder="Enter Supplier Name"
-                            value={supplierData.name || ''}
+                            value={supplierData?.name || ''}
                             onChange={(e) => setSupplierData({ ...supplierData, name: e.target.value })}
                         />
                     </div>
@@ -184,7 +185,7 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="streetAddress"
                             placeholder="Enter Street Address"
-                            value={supplierData.address?.street || ''}
+                            value={supplierData?.address?.street || ''}
                             onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, street: e.target.value } })}
                         />
                     </div>
@@ -197,7 +198,7 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="city"
                             placeholder="Enter City"
-                            value={supplierData.address?.city || ''}
+                            value={supplierData?.address?.city || ''}
                             onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, city: e.target.value } })}
                         />
                     </div>
@@ -210,7 +211,7 @@ const EditSupplierLayer = () => {
                             className="form-control radius-8"
                             id="postalCode"
                             placeholder="Enter Postal Code"
-                            value={supplierData.address?.postcode || ''}
+                            value={supplierData?.address?.postcode || ''}
                             onChange={(e) => setSupplierData({ ...supplierData, address: { ...supplierData.address, postcode: e.target.value } })}
                         />
                     </div>
@@ -221,7 +222,7 @@ const EditSupplierLayer = () => {
                         <select
                             className="form-control radius-8"
                             id="status"
-                            value={supplierData.status || ''}
+                            value={supplierData?.status || ''}
                             onChange={(e) => setSupplierData({ ...supplierData, status: e.target.value })}
                         >
                             <option value="active">Active</option>

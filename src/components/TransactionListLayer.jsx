@@ -132,7 +132,7 @@ const TransactionListLayer = () => {
                         <tr>
                             <th scope="col">S.L</th>
                             <th scope="col">Transaction ID</th>
-                            <th scope="col">Branch</th>
+                            <th scope="col">Shop</th>
                             <th scope="col">Date</th>
                             <th scope="col">Amount</th>
                             <th scope="col">Status</th>

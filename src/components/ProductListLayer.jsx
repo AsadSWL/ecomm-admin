@@ -12,6 +12,8 @@ const ProductListLayer = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
     const token = localStorage.getItem('token');
     const baseURL = process.env.REACT_APP_BASE_URL;
 
@@ -23,7 +25,7 @@ const ProductListLayer = () => {
             },
         })
             .then((response) => {
-                setProducts(response.data.products);
+                setProducts(response.data.products || []);
                 setLoading(false);
             })
             .catch((error) => {
@@ -45,6 +47,35 @@ const ProductListLayer = () => {
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1);
+    };
+
+    const handleDeleteClick = (product) => {
+        setProductToDelete(product);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteProduct = async () => {
+        try {
+            if (productToDelete) {
+                await axios.delete(`http://localhost:5000/api/delete-product/${productToDelete._id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setProducts((prevProducts) =>
+                    prevProducts.filter((product) => product._id !== productToDelete._id)
+                );
+                setShowDeleteModal(false);
+            }
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+        setProductToDelete(null);
     };
 
     const filteredProducts = products.filter(product => {
@@ -149,8 +180,8 @@ const ProductListLayer = () => {
                                 <td>
                                     <div className="d-flex align-items-center">
                                         <img
-                                            src={baseURL + product.image}
-                                            alt={product.name}
+                                            src={baseURL + product?.image}
+                                            alt={product?.name}
                                             className="flex-shrink-0 me-12 radius-8"
                                             width={50}
                                         />
@@ -159,20 +190,20 @@ const ProductListLayer = () => {
                                         </h6>
                                     </div>
                                 </td>
-                                <td>{product.category.name}</td>
-                                <td>{product.supplier.name}</td>
-                                <td>{product.price}</td>
-                                <td>{product.vat}</td>
+                                <td>{product?.category?.name}</td>
+                                <td>{product?.supplier?.name}</td>
+                                <td>{product?.price}</td>
+                                <td>{product?.vat}</td>
                                 <td>
-                                    <span className={`bg-${product.status === 'Active' ? 'success' : 'warning'}-focus text-${product.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
-                                        {product.status}
+                                    <span className={`bg-${product?.status === 'Active' ? 'success' : 'warning'}-focus text-${product?.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>
+                                        {product?.status}
                                     </span>
                                 </td>
                                 <td>
-                                    <Link to={`/products-edit/${product._id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                    <Link to={`/products-edit/${product?._id}`} className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <Icon icon="lucide:edit" />
                                     </Link>
-                                    <Link to="#" className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                    <Link to="#" onClick={() => handleDeleteClick(product)} className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <Icon icon="mingcute:delete-2-line" />
                                     </Link>
                                 </td>
@@ -217,6 +248,30 @@ const ProductListLayer = () => {
                     </ul>
                 </div>
             </div>
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="modal fade show" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#00000066' }}>
+                    <div className="modal-content" style={{ width: '500px', height: 'auto', padding: '10px' }}>
+                        <div style={{ padding: '20px', textAlign: 'center' }}>
+                            <b>Are you sure you want to delete this product?</b>
+                        </div>
+                        <div className="d-flex align-items-center justify-content-center gap-3">
+                            <button
+                                onClick={handleDeleteProduct}
+                                className="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={handleCloseDeleteModal}
+                                className="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

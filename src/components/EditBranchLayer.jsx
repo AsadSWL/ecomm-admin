@@ -32,14 +32,14 @@ const EditBranchLayer = () => {
                 if (response.ok) {
                     const data = await response.json();
                     const resData = {
-                        id: data.branch[0]._id,
-                        name: data.branch[0].firstname,
-                        email: data.branch[0].email,
-                        streetAddress: data.branch[0].address.street,
-                        city: data.branch[0].address.city,
-                        postalCode: data.branch[0].address.postcode,
-                        paymentMethod: data.branch[0].paymentMethod,
-                        status: data.branch[0].status,
+                        id: data.branch[0]?._id,
+                        name: data.branch[0]?.firstname,
+                        email: data.branch[0]?.email,
+                        streetAddress: data.branch[0]?.address?.street,
+                        city: data.branch[0]?.address?.city,
+                        postalCode: data.branch[0]?.address?.postcode,
+                        paymentMethod: data.branch[0]?.paymentMethod,
+                        status: data.branch[0]?.status,
                     };
                     setFormData(resData);
                 } else {
@@ -123,7 +123,7 @@ const EditBranchLayer = () => {
                             className="form-control radius-8"
                             id="name"
                             placeholder="Enter Shop Name"
-                            value={formData.name}
+                            value={formData?.name}
                             onChange={handleChange}
                             required
                         />
@@ -140,7 +140,7 @@ const EditBranchLayer = () => {
                             className="form-control radius-8"
                             id="email"
                             placeholder="Enter Shop Email"
-                            value={formData.email}
+                            value={formData?.email}
                             onChange={handleChange}
                             required
                         />
@@ -157,7 +157,7 @@ const EditBranchLayer = () => {
                             className="form-control radius-8"
                             id="streetAddress"
                             placeholder="Enter Street Address"
-                            value={formData.streetAddress}
+                            value={formData?.streetAddress}
                             onChange={handleChange}
                             required
                         />
@@ -174,7 +174,7 @@ const EditBranchLayer = () => {
                             className="form-control radius-8"
                             id="city"
                             placeholder="Enter City"
-                            value={formData.city}
+                            value={formData?.city}
                             onChange={handleChange}
                             required
                         />
@@ -191,7 +191,7 @@ const EditBranchLayer = () => {
                             className="form-control radius-8"
                             id="postalCode"
                             placeholder="Enter Postcode"
-                            value={formData.postalCode}
+                            value={formData?.postalCode}
                             onChange={handleChange}
                             required
                         />
@@ -207,7 +207,7 @@ const EditBranchLayer = () => {
                         <select
                             className="form-control radius-8 form-select"
                             id="paymentMethod"
-                            value={formData.paymentMethod}
+                            value={formData?.paymentMethod}
                             onChange={handleChange}
                             required
                         >
@@ -229,7 +229,7 @@ const EditBranchLayer = () => {
                         <select
                             className="form-control radius-8 form-select"
                             id="status"
-                            value={formData.status}
+                            value={formData?.status}
                             onChange={handleChange}
                             required
                         >

@@ -8,7 +8,7 @@ const AddProductLayer = () => {
     const [productName, setProductName] = useState('');
     const [sku, setSku] = useState('');
     const [price, setPrice] = useState('');
-    const [vat, setVat] = useState('');
+    const [vat, setVat] = useState(false);
     const [category, setCategory] = useState('');
     const [supplier, setSupplier] = useState('');
     const [status, setStatus] = useState('');
@@ -230,23 +230,6 @@ const AddProductLayer = () => {
                     </div>
                     <div className="mb-20 col-6">
                         <label
-                            htmlFor="vat"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
-                            VAT <span className="text-danger-600">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            className="form-control radius-8"
-                            id="vat"
-                            value={vat}
-                            onChange={(e) => setVat(e.target.value)}
-                            placeholder="Enter VAT"
-                            required
-                        />
-                    </div>
-                    <div className="mb-20 col-6">
-                        <label
                             htmlFor="category"
                             className="form-label fw-semibold text-primary-light text-sm mb-8"
                         >
@@ -309,9 +292,25 @@ const AddProductLayer = () => {
                             <option disabled>
                                 Select Status
                             </option>
+                            <option value="" selected disabled>Select Status</option>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
+                    </div>
+                    <div className="mb-20 col-6">
+                        <label
+                            htmlFor="vat"
+                            className="form-label fw-semibold text-primary-light text-sm mb-8"
+                        >
+                            VAT <span className="text-danger-600">*</span>
+                        </label><br />
+                        <input
+                            type="checkbox"
+                            className="form-check-input radius-8"
+                            id="vat"
+                            checked={vat}
+                            onChange={(e) => setVat(e.target.checked)}
+                        />
                     </div>
                     <div className="mb-20 col-12">
                         <label

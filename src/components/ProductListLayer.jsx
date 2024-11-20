@@ -192,7 +192,7 @@ const ProductListLayer = () => {
                                 </td>
                                 <td>{product?.category?.name}</td>
                                 <td>{product?.supplier?.name}</td>
-                                <td>{product?.price}</td>
+                                <td>&#xa3; {product?.price}</td>
                                 <td>{product?.vat}</td>
                                 <td>
                                     <span className={`bg-${product?.status === 'Active' ? 'success' : 'warning'}-focus text-${product?.status === 'Active' ? 'success' : 'warning'}-main px-24 py-4 rounded-pill fw-medium text-sm`}>

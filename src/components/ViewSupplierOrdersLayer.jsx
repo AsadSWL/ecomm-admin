@@ -66,7 +66,6 @@ const ViewSupplierOrdersLayer = () => {
                 <td><Skeleton width={100} /></td>
                 <td><Skeleton width={100} /></td>
                 <td><Skeleton width={100} /></td>
-                <td><Skeleton width={80} /></td>
                 <td><Skeleton width={120} /></td>
                 <td><Skeleton circle width={32} height={32} /></td>
             </tr>
@@ -114,7 +113,6 @@ const ViewSupplierOrdersLayer = () => {
                             <th scope="col">Shop</th>
                             <th scope="col">Order Date</th>
                             <th scope="col">Delivery Date</th>
-                            <th scope="col">Amount</th>
                             <th scope="col">Payment Method</th>
                             <th scope="col">Action</th>
                         </tr>
@@ -138,11 +136,10 @@ const ViewSupplierOrdersLayer = () => {
                                         day: 'numeric',
                                     })}
                                 </td>
-                                <td>{order?.totalPrice}</td>
                                 <td>{order?.status}</td>
                                 <td>
                                     <Link
-                                        to={`/order-view/${order?._id}`}
+                                        to={`/supplier-order-view/${supplierId}/${order?._id}`}
                                         className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
                                     >
                                         <Icon icon="iconamoon:eye-light" />

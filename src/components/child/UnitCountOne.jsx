@@ -45,7 +45,7 @@ const UnitCountOne = () => {
                     <div className="card-body p-20">
                         <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
                             <div>
-                                <p className="fw-medium text-primary-light mb-1">Total Branches</p>
+                                <p className="fw-medium text-primary-light mb-1">Total Shops</p>
                                 <h3 className="mb-0">{error? '0' : renderValueOrLoader(stats?.branches)}</h3>
                             </div>
                             <div className="w-50-px h-50-px bg-cyan rounded-circle d-flex justify-content-center align-items-center">
@@ -122,7 +122,7 @@ const UnitCountOne = () => {
                         <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
                             <div>
                                 <p className="fw-medium text-primary-light mb-1">Total Sale</p>
-                                <h4 className="mb-0">{error? '0' : renderValueOrLoader(stats?.sales)}</h4>
+                                <h4 className="mb-0">&#xa3; {error? '0' : renderValueOrLoader(stats?.sales)}</h4>
                             </div>
                             <div className="w-50-px h-50-px bg-success-main rounded-circle d-flex justify-content-center align-items-center">
                                 <Icon

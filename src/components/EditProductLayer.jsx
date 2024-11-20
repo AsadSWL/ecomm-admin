@@ -82,7 +82,7 @@ const EditProductLayer = () => {
                     name: data.product.length > 0 ? data.product[0]?.name : '',
                     sku: data.product.length > 0 ? data.product[0]?.sku : '',
                     price: data.product.length > 0 ? data.product[0]?.price : '',
-                    vat: data.product.length > 0 ? data.product[0]?.vat : '',
+                    vat: data.product.length > 0 ? (data.product[0]?.vat == 20 ? true : false) : '',
                     category: data.product.length > 0 ? data.product[0]?.category?._id : '',
                     supplier: data.product.length > 0 ? data.product[0]?.supplier?._id : '',
                     status: data.product.length > 0 ? data.product[0]?.status : '',
@@ -255,22 +255,6 @@ const EditProductLayer = () => {
                     </div>
                     <div className="mb-20 col-6">
                         <label
-                            htmlFor="vat"
-                            className="form-label fw-semibold text-primary-light text-sm mb-8"
-                        >
-                            VAT <span className="text-danger-600">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            className="form-control radius-8"
-                            id="vat"
-                            placeholder="Enter VAT"
-                            value={productData.vat}
-                            onChange={(e) => setProductData({ ...productData, vat: e.target.value })}
-                        />
-                    </div>
-                    <div className="mb-20 col-6">
-                        <label
                             htmlFor="category"
                             className="form-label fw-semibold text-primary-light text-sm mb-8"
                         >
@@ -331,6 +315,21 @@ const EditProductLayer = () => {
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
+                    </div>
+                    <div className="mb-20 col-6">
+                        <label
+                            htmlFor="vat"
+                            className="form-label fw-semibold text-primary-light text-sm mb-8"
+                        >
+                            VAT <span className="text-danger-600">*</span>
+                        </label><br />
+                        <input
+                            type="checkbox"
+                            className="form-check-input radius-8"
+                            id="vat"
+                            checked={productData.vat}
+                            onChange={(e) => setProductData({ ...productData, vat: e.target.checked })}
+                        />
                     </div>
                     <div className="mb-20 col-12">
                         <label

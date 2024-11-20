@@ -1,11 +1,12 @@
 import React from "react";
 import MasterLayout from "../masterLayout/MasterLayout";
 import Breadcrumb from "../components/Breadcrumb";
-import InvoicePreviewLayer from "../components/InvoicePreviewLayer";
+import SupplierInvoicePreviewLayer from "../components/SupplierInvoicePreviewLayer";
 
 
 
-const InvoicePreviewPage = () => {
+
+const SupplierInvoicePreviewPage = () => {
   return (
     <>
 
@@ -15,8 +16,8 @@ const InvoicePreviewPage = () => {
         {/* Breadcrumb */}
         <Breadcrumb title="Order - Preview" />
 
-        {/* InvoicePreviewLayer */}
-        <InvoicePreviewLayer />
+        {/* SupplierInvoicePreviewLayer */}
+        <SupplierInvoicePreviewLayer />
 
       </MasterLayout>
 
@@ -24,4 +25,4 @@ const InvoicePreviewPage = () => {
   );
 };
 
-export default InvoicePreviewPage;
+export default SupplierInvoicePreviewPage;

@@ -55,7 +55,6 @@ const RecentOrdersOne = () => {
                                 <tr>
                                     <th scope="col">S.L</th>
                                     <th scope="col">Shop</th>
-                                    <th scope="col">Suppliers</th>
                                     <th scope="col">Order Date</th>
                                     <th scope="col">Amount</th>
                                     <th scope="col">Payment Method</th>
@@ -67,7 +66,6 @@ const RecentOrdersOne = () => {
                                     ? Array.from({ length: 5 }).map((_, index) => (
                                         <tr key={index}>
                                             <td><Skeleton width={20} /></td>
-                                            <td><Skeleton width={100} /></td>
                                             <td><Skeleton width={100} /></td>
                                             <td><Skeleton width={80} /></td>
                                             <td><Skeleton width={60} /></td>
@@ -82,16 +80,13 @@ const RecentOrdersOne = () => {
                                                 {order?.branch?.firstname}
                                             </td>
                                             <td>
-                                                {order?.supplier?.name}
-                                            </td>
-                                            <td>
                                                 {new Date(order?.createdAt).toLocaleDateString('en-GB', {
                                                     year: 'numeric',
                                                     month: 'short',
                                                     day: 'numeric',
                                                 })}
                                             </td>
-                                            <td>{order?.totalPrice}</td>
+                                            <td>&#xa3; {order?.totalPrice}</td>
                                             <td>{order?.status}</td>
                                             <td>
                                                 <Link

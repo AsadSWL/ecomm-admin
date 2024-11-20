@@ -140,7 +140,7 @@ const OrderListLayer = () => {
                                         day: 'numeric',
                                     })}
                                 </td>
-                                <td>{order?.totalPrice}</td>
+                                <td>&#xa3; {order?.totalPrice}</td>
                                 <td>{order?.status}</td>
                                 <td>
                                     <Link

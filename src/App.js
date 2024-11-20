@@ -23,6 +23,7 @@ import ViewBranchOrdersPage from "./pages/ViewBranchOrdersPage";
 import ViewSupplierPage from "./pages/ViewSupplierPage";
 import ViewSupplierOrdersPage from "./pages/ViewSupplierOrdersPage";
 import ViewSupplierProductsPage from "./pages/ViewSupplierProductsPage";
+import SupplierInvoicePreviewPage from "./pages/SupplierInvoicePreviewPage";
 import ViewProductPage from "./pages/ViewProductPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -54,6 +55,7 @@ function App() {
                     <Route exact path="/suppliers-edit/:supplierId" element={<ProtectedRoute element={EditSupplierPage} allowedRoles={['admin']} />} />
                     <Route exact path="/supplier-products/:supplierId" element={<ProtectedRoute element={ViewSupplierProductsPage} allowedRoles={['admin']} />} />
                     <Route exact path="/supplier-orders/:supplierId" element={<ProtectedRoute element={ViewSupplierOrdersPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/supplier-order-view/:supplierId/:orderId" element={<ProtectedRoute element={SupplierInvoicePreviewPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/shops-list" element={<ProtectedRoute element={BranchListPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shop-view" element={<ProtectedRoute element={ViewBranchPage} allowedRoles={['admin']} />} />

@@ -1,14 +1,16 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Autocomplete, TextField, Chip } from '@mui/material';
+import { TextField, Chip } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
 
-const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+import 'dayjs/locale/en-gb';
+
+dayjs.locale('en-gb');
 
 const EditSupplierLayer = () => {
     const [supplierData, setSupplierData] = useState({});
@@ -16,7 +18,6 @@ const EditSupplierLayer = () => {
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const { supplierId } = useParams();
-    const [selectedDays, setSelectedDays] = useState([]);
     const [selectedDates, setSelectedDates] = useState([]);
     const token = localStorage.getItem('token');
     const baseURL = process.env.REACT_APP_BASE_URL;
@@ -32,15 +33,10 @@ const EditSupplierLayer = () => {
             const data = response.data.supplier.length > 0 ? response.data.supplier[0] : [];
             setSupplierData(data);
             setImagePreview(baseURL + data?.icon);
-            setSelectedDays(data?.deliveryDays || []);
-            setSelectedDates(data?.holidays?.holidays?.map(dayjs) || []);
+            setSelectedDates(data?.holidays?.holidays.map(dayjs) || []);
         } catch (error) {
             console.error("Error fetching supplier data:", error);
         }
-    };
-
-    const handleAreaChange = (event, value) => {
-        setSelectedDays(value);
     };
 
     const handleDateChange = (newDate) => {
@@ -48,7 +44,7 @@ const EditSupplierLayer = () => {
     };
 
     const removeDate = (dateToRemove) => {
-        setSelectedDates(selectedDates.filter(date => !dayjs(date).isSame(dateToRemove)));
+        setSelectedDates(selectedDates.filter(date => !dayjs(date).isSame(dayjs(dateToRemove, 'DD-MM-YYYY'))));
     };
 
     const handleCancel = () => {
@@ -75,12 +71,13 @@ const EditSupplierLayer = () => {
         const formData = new FormData();
         formData.append("id", supplierData?._id);
         formData.append("name", supplierData?.name);
+        formData.append("email", supplierData?.email);
+        formData.append("phone", supplierData?.phone);
         formData.append("streetAddress", supplierData?.address?.street);
         formData.append("city", supplierData?.address?.city);
         formData.append("postalCode", supplierData?.address?.postcode);
         formData.append("status", supplierData?.status);
-        formData.append("deliveryDays", JSON.stringify(selectedDays));
-        formData.append("holidays", JSON.stringify(selectedDates.map(date => date)));
+        formData.append("holidays", JSON.stringify(selectedDates.map(date => new Date(date).toLocaleDateString('en-GB'))));
 
         if (fileInputRef.current?.files[0]) {
             formData.append("logo", fileInputRef.current.files[0]);
@@ -111,7 +108,6 @@ const EditSupplierLayer = () => {
 
     useEffect(() => {
         if (supplierData) {
-            setSelectedDays(supplierData?.deliveryDays || []);
             console.log(supplierData);
             setSelectedDates(supplierData?.holidays?.holidays?.map(dayjs) || []);
         }
@@ -178,6 +174,32 @@ const EditSupplierLayer = () => {
                         />
                     </div>
                     <div className="mb-20 col-6">
+                        <label htmlFor="email" className="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Email Address <span className="text-danger-600">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            className="form-control radius-8"
+                            id="email"
+                            placeholder="Enter Supplier Email Address"
+                            value={supplierData?.email || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, email: e.target.value })}
+                        />
+                    </div>
+                    <div className="mb-20 col-6">
+                        <label htmlFor="phone" className="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Phone NUmber <span className="text-danger-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control radius-8"
+                            id="phone"
+                            placeholder="Enter Supplier Phone Number"
+                            value={supplierData?.phone || ''}
+                            onChange={(e) => setSupplierData({ ...supplierData, phone: e.target.value })}
+                        />
+                    </div>
+                    <div className="mb-20 col-6">
                         <label htmlFor="streetAddress" className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Street Address <span className="text-danger-600">*</span>
                         </label>
@@ -231,19 +253,6 @@ const EditSupplierLayer = () => {
                         </select>
                     </div>
                     <div className="mb-20 col-6">
-                        <label htmlFor="deliveryDays" className="form-label fw-semibold text-primary-light text-sm mb-8">
-                            Delivery Days
-                        </label>
-                        <Autocomplete
-                            multiple
-                            id="deliveryDays"
-                            options={weekDays}
-                            value={selectedDays}
-                            onChange={handleAreaChange}
-                            renderInput={(params) => <TextField {...params} />}
-                        />
-                    </div>
-                    <div className="mb-20 col-6">
                         <label className="form-label fw-semibold text-primary-light text-sm mb-8">
                             Holidays
                         </label><br />
@@ -265,7 +274,7 @@ const EditSupplierLayer = () => {
                             {selectedDates.map((date, index) => (
                                 <Chip
                                     key={index}
-                                    label={dayjs(date).format('DD-MM-YYYY')}
+                                    label={new Date(date).toLocaleDateString('en-GB')}
                                     onDelete={() => removeDate(new Date(date).toLocaleDateString('en-GB'))}
                                     className="me-2 mb-2"
                                 />

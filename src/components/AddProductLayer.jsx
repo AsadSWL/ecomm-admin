@@ -289,9 +289,6 @@ const AddProductLayer = () => {
                             onChange={(e) => setStatus(e.target.value)}
                             required
                         >
-                            <option disabled>
-                                Select Status
-                            </option>
                             <option value="" selected disabled>Select Status</option>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>

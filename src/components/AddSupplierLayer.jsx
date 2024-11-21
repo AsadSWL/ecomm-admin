@@ -1,23 +1,21 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Autocomplete, TextField, Chip } from '@mui/material';
+import { TextField, Chip } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import axios from 'axios';
 
-const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
 const AddSupplierLayer = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
-    const [selectedAreas, setSelectedAreas] = useState([]);
     const [selectedDates, setSelectedDates] = useState([]);
     const [supplierName, setSupplierName] = useState('');
     const [supplierEmail, setSupplierEmail] = useState('');
+    const [supplierPhone, setSupplierPhone] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
     const [city, setCity] = useState('');
     const [postalCode, setPostalCode] = useState('');
@@ -27,10 +25,6 @@ const AddSupplierLayer = () => {
     const [error, setError] = useState(null);
 
     const baseURL = process.env.REACT_APP_BASE_URL;
-
-    const handleAreaChange = (event, value) => {
-        setSelectedAreas(value);
-    };
 
     const handleDateChange = (newDate) => {
         setSelectedDates([...selectedDates, newDate]);
@@ -75,10 +69,10 @@ const AddSupplierLayer = () => {
         }
         formData.append('name', supplierName);
         formData.append('email', supplierEmail);
+        formData.append('phone', supplierPhone);
         formData.append('streetAddress', streetAddress);
         formData.append('city', city);
         formData.append('postcode', postalCode);
-        formData.append('deliveryDays', selectedAreas);
         formData.append('holidays', selectedDates);
         formData.append('status', status);
 
@@ -181,15 +175,32 @@ const AddSupplierLayer = () => {
                             htmlFor="email"
                             className="form-label fw-semibold text-primary-light text-sm mb-8"
                         >
-                            Supplier Email <span className="text-danger-600">*</span>
+                            Email Address <span className="text-danger-600">*</span>
                         </label>
                         <input
-                            type="text"
+                            type="email"
                             className="form-control radius-8"
                             id="email"
                             value={supplierEmail}
                             onChange={(e) => setSupplierEmail(e.target.value)}
-                            placeholder="Enter Supplier Email"
+                            placeholder="Enter Supplier Email Address"
+                            required
+                        />
+                    </div>
+                    <div className="mb-20 col-6">
+                        <label
+                            htmlFor="phone"
+                            className="form-label fw-semibold text-primary-light text-sm mb-8"
+                        >
+                            Phone Number <span className="text-danger-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control radius-8"
+                            id="phone"
+                            value={supplierPhone}
+                            onChange={(e) => setSupplierPhone(e.target.value)}
+                            placeholder="Enter Supplier Phone Numebr"
                             required
                         />
                     </div>
@@ -259,36 +270,12 @@ const AddSupplierLayer = () => {
                             onChange={(e) => setStatus(e.target.value)}
                             required
                         >
-                            <option disabled value="">
+                            <option disabled selected>
                                 Select Status
                             </option>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
-                    </div>
-                    <div className="mb-20 col-6">
-                        <label className="form-label fw-semibold text-primary-light text-sm mb-8">
-                            Delivery Days
-                        </label>
-                        <Autocomplete
-                            multiple
-                            options={weekDays}
-                            value={selectedAreas}
-                            onChange={handleAreaChange}
-                            renderTags={(value, getTagProps) =>
-                                value.map((option, index) => (
-                                    <Chip key={index} label={option} {...getTagProps({ index })} />
-                                ))
-                            }
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    placeholder="Type to select week days"
-                                    variant="outlined"
-                                    className="form-control radius-8"
-                                />
-                            )}
-                        />
                     </div>
                     <div className="mb-20 col-6">
                         <label className="form-label fw-semibold text-primary-light text-sm mb-8">

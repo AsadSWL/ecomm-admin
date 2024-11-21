@@ -25,6 +25,9 @@ import ViewSupplierOrdersPage from "./pages/ViewSupplierOrdersPage";
 import ViewSupplierProductsPage from "./pages/ViewSupplierProductsPage";
 import SupplierInvoicePreviewPage from "./pages/SupplierInvoicePreviewPage";
 import ViewProductPage from "./pages/ViewProductPage";
+import DeliveryDaysListPage from "./pages/DeliveryDaysListPage";
+import AddDeliveryDaysPage from "./pages/AddDeliveryDaysPage";
+import EditDeliveryDaysPage from "./pages/EditDeliveryDaysPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -62,6 +65,10 @@ function App() {
                     <Route exact path="/shop-add" element={<ProtectedRoute element={AddBranchPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shop-edit/:id" element={<ProtectedRoute element={EditBranchPage} allowedRoles={['admin']} />} />
                     <Route exact path="/shops-orders/:id" element={<ProtectedRoute element={ViewBranchOrdersPage} allowedRoles={['admin']} />} />
+
+                    <Route exact path="/delivery-days" element={<ProtectedRoute element={DeliveryDaysListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/add-delivery-days" element={<ProtectedRoute element={AddDeliveryDaysPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/edit-delivery-days/:id" element={<ProtectedRoute element={EditDeliveryDaysPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/transactions-list" element={<ProtectedRoute element={TransactionListPage} allowedRoles={['admin']} />} />
 

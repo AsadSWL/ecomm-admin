@@ -154,6 +154,14 @@ const MasterLayout = ({ children }) => {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/delivery-days" className={(navData) =>
+                navData.isActive ? "active-page" : ""
+              }>
+                <Icon icon="mynaui:calendar" className="menu-icon" />
+                <span>Delivery Days</span>
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/shops-list" className={(navData) =>
                 navData.isActive ? "active-page" : ""
               }>

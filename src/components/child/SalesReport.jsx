@@ -58,7 +58,7 @@ const SalesReport = () => {
                 <option value="Last week">Last week</option>
                 <option value="Month to date">Month to date</option>
                 <option value="Last month">Last month</option>
-                <option value="Quarter to day">Quarter to day</option>
+                <option value="Quarter to date">Quarter to date</option>
                 <option value="Last quarter">Last quarter</option>
                 <option value="Year to date">Year to date</option>
                 <option value="Last year">Last year</option>
@@ -138,6 +138,7 @@ const SalesReport = () => {
                                         <tr key={index}>
                                             <td><Skeleton width={20} /></td>
                                             <td><Skeleton width={100} /></td>
+                                            <td><Skeleton width={80} /></td>
                                             <td><Skeleton width={80} /></td>
                                             <td><Skeleton width={60} /></td>
                                             <td><Skeleton width={120} /></td>

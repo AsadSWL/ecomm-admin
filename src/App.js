@@ -28,6 +28,7 @@ import ViewProductPage from "./pages/ViewProductPage";
 import DeliveryDaysListPage from "./pages/DeliveryDaysListPage";
 import AddDeliveryDaysPage from "./pages/AddDeliveryDaysPage";
 import EditDeliveryDaysPage from "./pages/EditDeliveryDaysPage";
+import ReportsPage from "./pages/ReportsPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -71,6 +72,7 @@ function App() {
                     <Route exact path="/edit-delivery-days/:id" element={<ProtectedRoute element={EditDeliveryDaysPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/transactions-list" element={<ProtectedRoute element={TransactionListPage} allowedRoles={['admin']} />} />
+                    <Route exact path="/reports" element={<ProtectedRoute element={ReportsPage} allowedRoles={['admin']} />} />
 
                     <Route exact path="/company" element={<ProtectedRoute element={CompanyPage} allowedRoles={['admin']} />} />
 

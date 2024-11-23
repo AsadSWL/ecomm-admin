@@ -177,6 +177,14 @@ const MasterLayout = ({ children }) => {
                 <span>Transactions</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/reports" className={(navData) =>
+                navData.isActive ? "active-page" : ""
+              }>
+                <Icon icon="hugeicons:invoice-01" className="menu-icon" />
+                <span>Reports</span>
+              </NavLink>
+            </li>
 
           </ul>
         </div>
